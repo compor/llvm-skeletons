@@ -64,6 +64,14 @@ SkeletonOptPass::runOnFunction(llvm::Function &f) {
   ret_type->print(llvm::errs());
   llvm::errs() << "\n";
 
+  for(auto bb = f.begin(); f.end() != bb; bb++)
+    for(auto ii = bb->begin(); ii != bb->end(); ii++)
+      //for(auto use : ii->users()) {
+      for(auto user = ii->user_begin(); ii->user_end() != user; user++) {
+        auto use_inst = dyn_cast<Instruction>(*user);
+        errs() << *ii << " : " << *use_inst << "\n";
+      }
+
   return false;
 }
 
