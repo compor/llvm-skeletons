@@ -47,7 +47,6 @@ endif()
 
 # configuration
 
-set(LIB_NAME "LLVMSkeletonOptPass")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
@@ -65,13 +64,31 @@ include_directories(${LLVM_INCLUDE_DIRS})
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include/")
 
-add_library(${LIB_NAME} MODULE 
+set(LIB_NAME "LLVMSkeletonOptPass")
+set(LIB_SOURCES 
   "${CMAKE_CURRENT_SOURCE_DIR}/lib/SkeletonOptPass.cpp")
 
-# comment out the following two statements
-# to test against static lib LLVM build
-llvm_map_components_to_libnames(llvm_libs core support passes)
-target_link_libraries(${LIB_NAME} ${llvm_libs})
+if(NOT ${USE_LLVM_INTERNAL_MODULE_FUNCTION})
+  add_library(${LIB_NAME} MODULE ${LIB_SOURCES})
+
+  # comment out the following two statements
+  # to test against static lib LLVM build
+  llvm_map_components_to_libnames(llvm_libs core support passes)
+  target_link_libraries(${LIB_NAME} ${llvm_libs})
+else()
+  # this follows the suggestion documented in
+  # http://llvm.org/docs/CMake.html#cmake-out-of-source-pass
+  # for allowing future inclusion of the plugin in the LLVM source tree
+  # by using LLVM's internal cmake functions and utilities
+  set(LLVM_RUNTIME_OUTPUT_INTDIR ${CMAKE_BINARY_DIR}/${CMAKE_CFG_INT_DIR}/bin)
+  set(LLVM_LIBRARY_OUTPUT_INTDIR ${CMAKE_BINARY_DIR}/${CMAKE_CFG_INT_DIR}/lib)
+
+  list(APPEND CMAKE_MODULE_PATH "${LLVM_CMAKE_DIR}")
+  include(HandleLLVMOptions)
+  include(AddLLVM)
+
+  add_llvm_loadable_module(${LIB_NAME} ${LIB_SOURCES})
+endif()
 
 #if(${EXTDEP_FOUND})
   #target_link_libraries(${LIB_NAME} ${EXTDEP_LIB})
