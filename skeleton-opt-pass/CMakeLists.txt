@@ -68,9 +68,9 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include/")
 add_library(${LIB_NAME} MODULE 
   "${CMAKE_CURRENT_SOURCE_DIR}/lib/SkeletonOptPass.cpp")
 
-# comment to test against static lib LLVM build
+# comment out the following two statements
+# to test against static lib LLVM build
 llvm_map_components_to_libnames(llvm_libs core support passes)
-
 target_link_libraries(${LIB_NAME} ${llvm_libs})
 
 #if(${EXTDEP_FOUND})
