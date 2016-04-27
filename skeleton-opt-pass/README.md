@@ -15,9 +15,18 @@ A generic skeleton for LLVM's opt tool
 
 ## How to execute
 
+### Using opt
+
 - make sure LLVM's opt is in your `$PATH`
 - `opt -load [path to plugin]/libLLVMSkeletonOptPass.so -skeleton foo.bc -o
    foo.skeleton.bc`
+
+### Using clang
+
+- make sure LLVM's clang is in your `$PATH`
+- `clang -Xclang -load -Xclang [path to plugin]/libLLVMSkeletonOptPass.so foo.c
+    -o foo`
+   
 
 ## Requirements
 
@@ -25,11 +34,15 @@ A generic skeleton for LLVM's opt tool
 
 ## TODO
 
-- check the dynamic section of the built shared object with `readelf`
+- ~~check the dynamic section of the built shared object with `readelf`~~
+  - no `RPATH` used
 - built and execute with:
   - LLVM 3.8.0
   - LLVM trunk
-- add automatic plugin registration to clang with
+- ~~add automatic plugin registration to clang~~
+- consider alternative extension points for automatic registration with clang
+- how custom registration works with 2 custom passes that are automatically
+  registered with clang
 - add tests
 - add unittests (using lit?)
 - add doc generation
