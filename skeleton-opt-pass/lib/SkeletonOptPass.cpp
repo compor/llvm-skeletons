@@ -10,8 +10,14 @@
 #include "llvm/IR/Type.h"
 // using llvm::Type
 
+#include "llvm/IR/Instruction.h"
+// using llvm::Instruction
+
 #include "llvm/IR/Function.h"
 // using llvm::Function
+
+#include "llvm/Support/Casting.h"
+// using llvm::dyn_cast
 
 #include "llvm/Support/raw_ostream.h"
 // using llvm::errs
@@ -68,8 +74,8 @@ SkeletonOptPass::runOnFunction(llvm::Function &f) {
     for(auto ii = bb->begin(); ii != bb->end(); ii++)
       //for(auto use : ii->users()) {
       for(auto user = ii->user_begin(); ii->user_end() != user; user++) {
-        auto use_inst = dyn_cast<Instruction>(*user);
-        errs() << *ii << " : " << *use_inst << "\n";
+        auto use_inst = llvm::dyn_cast<llvm::Instruction>(*user);
+        llvm::errs() << *ii << " : " << *use_inst << "\n";
       }
 
   return false;
