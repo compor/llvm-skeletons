@@ -25,6 +25,7 @@ A generic skeleton for LLVM's opt tool
 
 ## TODO
 
+- check the dynamic section of the built shared object with `readelf`
 - built and execute with:
   - LLVM 3.8.0
   - LLVM trunk
