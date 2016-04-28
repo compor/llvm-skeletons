@@ -25,10 +25,10 @@ endforeach()
 find_package(LLVM REQUIRED CONFIG)
 
 if(${LLVM_FOUND})
-    message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
-    message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
+  message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
+  message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 else()
-    message(FATAL_ERROR "Could not find LLVM")
+  message(FATAL_ERROR "Could not find LLVM")
 endif()
 
 
@@ -49,7 +49,16 @@ endif()
 
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
+
+if(NOT ${LLVM_ENABLE_RTTI})
+  message(STATUS "RTTI support: disabled")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
+endif()
+
+if(NOT ${LLVM_ENABLE_EH})
+  message(STATUS "EH support: disabled")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-exceptions")
+endif()
 
 #if(${EXTDEP_FOUND})
 #include_directories(${EXTDEP_INCLUDE_DIR})
