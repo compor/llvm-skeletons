@@ -9,7 +9,8 @@ A generic skeleton for LLVM's opt tool
 - `mkdir my-build-dir`
 - optionally `mkdir my-install-dir`
 - `[path to repo]/skeleton-opt-pass/utils/build.sh [path to
-   repo]/skeleton-opt-pass`
+   repo]/skeleton-opt-pass [path to installation dir]`
+- `cd my-build-dir`
 - `make`
 - optionally `make install`
 
@@ -27,10 +28,14 @@ A generic skeleton for LLVM's opt tool
 - `clang -Xclang -load -Xclang [path to plugin]/libLLVMSkeletonOptPass.so foo.c
     -o foo`
    
-
 ## Requirements
 
 - Built and executed with LLVM 3.7.0
+
+## Notes
+
+- When the build script uses LLVM's cmake utility functions the `lib` shared
+  library prefix is omitted
 
 ## TODO
 
