@@ -5,6 +5,10 @@
 #include "llvm/Pass.h"
 // using llvm::FunctionPass
 
+namespace llvm {
+  class Function;
+} // namespace llvm end
+
 
 namespace {
 
