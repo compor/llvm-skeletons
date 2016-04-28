@@ -70,11 +70,6 @@ set(LIB_SOURCES
 
 if(NOT ${USE_LLVM_INTERNAL_MODULE_FUNCTION})
   add_library(${LIB_NAME} MODULE ${LIB_SOURCES})
-
-  # comment out the following two statements
-  # to test against static lib LLVM build
-  llvm_map_components_to_libnames(llvm_libs core support passes)
-  target_link_libraries(${LIB_NAME} ${llvm_libs})
 else()
   # this follows the suggestion documented in
   # http://llvm.org/docs/CMake.html#cmake-out-of-source-pass
@@ -89,6 +84,15 @@ else()
 
   add_llvm_loadable_module(${LIB_NAME} ${LIB_SOURCES})
 endif()
+
+# according to
+# http://llvm.org/docs/CMake.html
+# we do not need the below library dependencies since the plugin will be loaded
+# via opt or clang which already have those libs in their dependencies
+# comment out the following two statements
+# to test against static lib LLVM build
+#llvm_map_components_to_libnames(llvm_libs core support passes)
+#target_link_libraries(${LIB_NAME} ${llvm_libs})
 
 #if(${EXTDEP_FOUND})
   #target_link_libraries(${LIB_NAME} ${EXTDEP_LIB})

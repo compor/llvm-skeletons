@@ -39,8 +39,8 @@ A generic skeleton for LLVM's opt tool
 
 ## TODO
 
-- check library dependencies when plugin is built with LLVM's internal cmake
-  utility functions
+- ~~check library dependencies when plugin is built with LLVM's internal cmake
+  utility functions~~
 - explore instruction uses and users according to LLVM reference manual
 - ~~check the dynamic section of the built shared object with `readelf`~~
   - no `RPATH` used
