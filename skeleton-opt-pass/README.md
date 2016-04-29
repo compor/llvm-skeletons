@@ -30,7 +30,9 @@ A generic skeleton for LLVM's opt tool
    
 ## Requirements
 
-- Built and executed with LLVM 3.7.0
+- Built and executed with:
+  - LLVM 3.7.0
+  - LLVM 3.8.0
 
 ## Notes
 
@@ -45,7 +47,7 @@ A generic skeleton for LLVM's opt tool
 - ~~check the dynamic section of the built shared object with `readelf`~~
   - no `RPATH` used
 - built and execute with:
-  - LLVM 3.8.0
+  - ~~LLVM 3.8.0~~
   - LLVM trunk
 - ~~add automatic plugin registration to clang~~
 - consider alternative extension points for automatic registration with clang
