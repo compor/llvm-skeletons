@@ -55,7 +55,8 @@ A generic skeleton for LLVM's opt tool
   registered with clang
 - add tests
 - add unittests (using lit?)
-- add doc generation
+- ~~add doc generation~~
+  - beautify doc generation
 - add cmake export files for `find_package` capability
 - maybe make it even more generic by allowing customization of:
   - pass name
