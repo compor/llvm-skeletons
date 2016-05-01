@@ -22,6 +22,21 @@ endforeach()
 
 # requirements
 
+message(STATUS "Detecting Doxygen dependency")
+
+find_package(Doxygen)
+
+if(${DOXYGEN_FOUND})
+  message(STATUS "Found Doxygen ${DOXYGEN_VERSION}")
+  message(STATUS "Doxygen binary: ${DOXYGEN_EXECUTABLE}")
+else()
+  message(STATUS "Could not find Doxygen")
+endif()
+
+#
+
+message(STATUS "Detecting LLVM dependency")
+
 find_package(LLVM REQUIRED CONFIG)
 
 if(${LLVM_FOUND})
@@ -31,6 +46,7 @@ else()
   message(FATAL_ERROR "Could not find LLVM")
 endif()
 
+#
 
 #message(STATUS "Detecting external project dependency: ExtDepProject")
 
