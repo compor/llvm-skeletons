@@ -72,6 +72,7 @@ endif()
 
 # configuration
 
+#
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 
@@ -133,8 +134,22 @@ endif()
 #endif()
 
 
+#
+
+string(TOUPPER ${PROJECT_NAME} PROJECT_CMAKE_MODULE_PREFIX)
+get_target_property(PROJECT_LIB_NAME ${LIB_NAME} NAME)
+set(PROJECT_CMAKE_MODULE_DIR "cmake/modules")
+set(PROJECT_CMAKE_MODULE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_CMAKE_MODULE_DIR})
+
+configure_file(${PROJECT_CMAKE_MODULE_SOURCE_DIR}/skeleton-opt-pass.cmake.in
+  ${PROJECT_CMAKE_MODULE_DIR}/Find${PROJECT_NAME}.cmake
+  @ONLY)
+
+
 # installation
 
 install(TARGETS ${LIB_NAME} LIBRARY DESTINATION "lib")
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/" DESTINATION "include")
+install(DIRECTORY ${PROJECT_CMAKE_MODULE_DIR}
+  DESTINATION ${CMAKE_INSTALL_PREFIX})
 

@@ -57,7 +57,8 @@ A generic skeleton for LLVM's opt tool
 - add unittests (using lit?)
 - ~~add doc generation~~
   - beautify doc generation
-- add cmake export files for `find_package` capability
+- ~~add cmake export files for `find_package` capability~~
+  - test it within another project
 - maybe make it even more generic by allowing customization of:
   - pass name
   - pass base to inherit from
