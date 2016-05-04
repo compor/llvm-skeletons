@@ -69,15 +69,28 @@ SkeletonOptPass::runOnFunction(llvm::Function &f) {
   llvm::errs() << "\twith ret type : ";
   ret_type->print(llvm::errs());
 
-  llvm::errs() << "\n-----------------\n";
+  llvm::errs() << "\n---\n";
 
   for (auto bi = f.begin(); f.end() != bi; ++bi)
     for (auto ii = bi->begin(); bi->end() != ii; ++ii) {
-      llvm::errs() << "users of : " << *ii;
+      llvm::errs() << "users of : " << *ii << "\n";
       for (auto user : ii->users()) {
+        // TODO what about other users?
         if (auto user_inst = llvm::dyn_cast<llvm::Instruction>(user))
-          llvm::errs() << "\t" << *user_inst << "\n";
+          llvm::errs() << "\t" << *user_inst << "\n\n";
+
       }
+
+      llvm::errs() << "\twhich uses:\n";
+
+      for (auto &use : ii->operands()) {
+        auto v = use.get();
+        llvm::errs() << "\t";
+        v->print(llvm::errs());
+        llvm::errs() << "\n";
+      }
+
+      llvm::errs() << "\n---\n";
     }
 
   return false;
