@@ -1,16 +1,16 @@
 # cmake file
 
+# build tool configuration
+
 cmake_minimum_required(VERSION 3.2.0)
 
 project(SkeletonOptPass)
 
-
-# build tool configuration
 # TODO need to move this to top-level cmake list file
-
-set(PROJECT_POLICIES CMP0056)
-
 # CMP0056 is required for any libc++abi dependency of the try_compile() command
+# this bumps required version to 3.2
+# otherwise LD_LIBRARY_DIR needs to be set
+set(PROJECT_POLICIES CMP0056)
 
 foreach(PROJECT_POLICY ${PROJECT_POLICIES})
   if(POLICY ${PROJECT_POLICY})
@@ -70,7 +70,7 @@ endif()
 #endif()
 
 
-# configuration
+# project configuration
 
 #
 
