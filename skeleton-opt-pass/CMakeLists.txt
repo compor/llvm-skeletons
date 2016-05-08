@@ -137,7 +137,12 @@ endif()
 #
 
 string(TOUPPER ${PROJECT_NAME} PROJECT_CMAKE_MODULE_PREFIX)
-get_target_property(PROJECT_LIB_NAME ${LIB_NAME} NAME)
+
+# TODO better way to deduce library name, especially when using llvm cmake
+# functions
+get_target_property(PROJECT_LIB_NAMES ${LIB_NAME} NAME)
+set(PROJECT_LIB_NAMES "${PROJECT_LIB_NAMES} ${LIB_NAME}.so lib${LIB_NAME}.so")
+
 set(PROJECT_CMAKE_MODULE_SUBDIR "cmake/modules")
 set(PROJECT_CMAKE_MODULE_SOURCE_DIR
   "${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_CMAKE_MODULE_SUBDIR}")
