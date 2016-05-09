@@ -136,7 +136,11 @@ endif()
 
 #
 
+include(CMakePackageConfigHelpers)
+
 string(TOUPPER ${PROJECT_NAME} PROJECT_CMAKE_MODULE_PREFIX)
+
+
 
 # TODO better way to deduce library name, especially when using llvm cmake
 # functions
@@ -151,6 +155,10 @@ configure_file(${PROJECT_CMAKE_MODULE_SOURCE_DIR}/SkeletonOptPassConfig.cmake.in
   "share/${PROJECT_NAME}/cmake/${PROJECT_NAME}Config.cmake"
   @ONLY)
 
+write_basic_package_version_file(
+  "share/${PROJECT_NAME}/cmake/${PROJECT_NAME}ConfigVersion.cmake"
+  VERSION "0.0.0"
+  COMPATIBILITY SameMajorVersion)
 
 # installation
 
