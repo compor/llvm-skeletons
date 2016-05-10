@@ -97,6 +97,11 @@ endif()
 add_definitions(${LLVM_DEFINITIONS})
 include_directories(${LLVM_INCLUDE_DIRS})
 
+if(${LLVM_PACKAGE_VERSION} VERSION_LESS "3.8.0")
+  set(LLVM_RUNTIME_OUTPUT_INTDIR "${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INT_DIR}")
+  set(LLVM_RUNTIME_OUTPUT_INTDIR "${CMAKE_BINARY_DIR}/lib/${CMAKE_CFG_INT_DIR}")
+endif()
+
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include/")
 
 set(LIB_NAME "LLVMSkeletonOptPass")
@@ -110,8 +115,8 @@ else()
   # http://llvm.org/docs/CMake.html#cmake-out-of-source-pass
   # for allowing future inclusion of the plugin in the LLVM source tree
   # by using LLVM's internal cmake functions and utilities
-  set(LLVM_RUNTIME_OUTPUT_INTDIR ${CMAKE_BINARY_DIR}/${CMAKE_CFG_INT_DIR}/bin)
-  set(LLVM_LIBRARY_OUTPUT_INTDIR ${CMAKE_BINARY_DIR}/${CMAKE_CFG_INT_DIR}/lib)
+  set(LLVM_RUNTIME_OUTPUT_INTDIR ${CMAKE_BINARY_DIR}/${CMAKE_CFG_INTDIR}/bin)
+  set(LLVM_LIBRARY_OUTPUT_INTDIR ${CMAKE_BINARY_DIR}/${CMAKE_CFG_INTDIR}/lib)
 
   list(APPEND CMAKE_MODULE_PATH "${LLVM_CMAKE_DIR}")
   include(HandleLLVMOptions)
