@@ -19,15 +19,21 @@
 #include "llvm/Support/Casting.h"
 // using llvm::dyn_cast
 
-#include "llvm/Support/raw_ostream.h"
-// using llvm::errs
-
 #include "llvm/IR/LegacyPassManager.h"
 // using llvm::PassManagerBase
 
 #include "llvm/Transforms/IPO/PassManagerBuilder.h"
 // using llvm::PassManagerBuilder
 // using llvm::RegisterStandardPasses
+
+#include "llvm/Support/raw_ostream.h"
+// using llvm::raw_ostream
+
+#define DEBUG_TYPE "SOP"
+
+#include "llvm/Support/Debug.h"
+// using DEBUG macro
+// using llvm::dbgs
 
 
 // plugin registration for opt
@@ -62,35 +68,35 @@ namespace {
 
 bool
 SkeletonOptPass::runOnFunction(llvm::Function &f) {
-  llvm::errs() << "skeleton pass : ";
-  llvm::errs() << " function name : ";
-  llvm::errs().write_escaped(f.getName());
+  DEBUG(llvm::dbgs() << "skeleton pass : ");
+  DEBUG(llvm::dbgs() << " function name : ");
+  DEBUG(llvm::dbgs().write_escaped(f.getName()));
   auto ret_type = f.getReturnType();
-  llvm::errs() << "\twith ret type : ";
-  ret_type->print(llvm::errs());
+  DEBUG(llvm::dbgs() << "\twith ret type : ");
+  DEBUG(ret_type->print(llvm::dbgs()));
 
-  llvm::errs() << "\n---\n";
+  DEBUG(llvm::dbgs() << "\n---\n");
 
   for (auto bi = f.begin(); f.end() != bi; ++bi)
     for (auto ii = bi->begin(); bi->end() != ii; ++ii) {
-      llvm::errs() << "users of : " << *ii << "\n";
+      DEBUG(llvm::dbgs() << "users of : " << *ii << "\n");
       for (auto user : ii->users()) {
         // TODO what about other users?
         if (auto user_inst = llvm::dyn_cast<llvm::Instruction>(user))
-          llvm::errs() << "\t" << *user_inst << "\n\n";
+          DEBUG(llvm::dbgs() << "\t" << *user_inst << "\n\n");
 
       }
 
-      llvm::errs() << "\twhich uses:\n";
+      DEBUG(llvm::dbgs() << "\twhich uses:\n");
 
       for (auto &use : ii->operands()) {
         auto v = use.get();
-        llvm::errs() << "\t";
-        v->print(llvm::errs());
-        llvm::errs() << "\n";
+        DEBUG(llvm::dbgs() << "\t");
+        DEBUG(v->print(llvm::dbgs()));
+        DEBUG(llvm::dbgs() << "\n");
       }
 
-      llvm::errs() << "\n---\n";
+      DEBUG(llvm::dbgs() << "\n---\n");
     }
 
   return false;
