@@ -4,7 +4,18 @@
 
 cmake_minimum_required(VERSION 3.2.0)
 
-project(SkeletonOptPass)
+set(PROJECT_NAME SkeletonOptPass)
+
+# Standalone build or part of LLVM?
+set(PROJECT_STANDALONE_BUILD FALSE)
+
+if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}")
+  project(${PROJECT_NAME} C CXX)
+  set(PROJECT_STANDALONE_BUILD TRUE)
+endif()
+
+message(STATUS "Configuring ${PROJECT_NAME} as external LLVM project:\
+ ${PROJECT_STANDALONE_BUILD}")
 
 # TODO need to move this to top-level cmake list file
 # CMP0056 is required for any libc++abi dependency of the try_compile() command
@@ -55,14 +66,28 @@ endif()
 
 message(STATUS "Detecting LLVM dependency")
 
-find_package(LLVM REQUIRED CONFIG)
+if(${PROJECT_STANDALONE_BUILD})
+  # find_package in CONFIG mode will lookup and include LLVMConfig.cmake
+  find_package(LLVM REQUIRED CONFIG)
 
-if(${LLVM_FOUND})
-  message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
-  message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
-else()
-  message(FATAL_ERROR "Could not find LLVM")
+  if(${LLVM_FOUND})
+    message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
+    message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
+  else()
+    message(FATAL_ERROR "Could not find LLVM")
+  endif()
 endif()
+
+# These are required if functions are used:
+# - add_llvm_loadable_module()
+# - add_llvm_library
+if(${PROJECT_STANDALONE_BUILD})
+  list(APPEND CMAKE_MODULE_PATH "${LLVM_CMAKE_DIR}")
+else()
+  list(APPEND CMAKE_MODULE_PATH "${CMAKE_BINARY_DIR}/share/llvm/cmake/")
+endif()
+
+include(AddLLVM)
 
 #
 
@@ -86,14 +111,16 @@ endif()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 
 if(NOT ${LLVM_ENABLE_RTTI})
-  message(STATUS "RTTI support: disabled")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
 endif()
 
+message(STATUS "${PROJECT_NAME} RTTI support: ${LLVM_ENABLE_RTTI}")
+
 if(NOT ${LLVM_ENABLE_EH})
-  message(STATUS "EH support: disabled")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-exceptions")
 endif()
+
+message(STATUS "${PROJECT_NAME} EH support: ${LLVM_ENABLE_EH}")
 
 #if(${EXTDEP_FOUND})
 #include_directories(${EXTDEP_INCLUDE_DIR})
@@ -126,10 +153,6 @@ else()
   # by using LLVM's internal cmake functions and utilities
   set(LLVM_RUNTIME_OUTPUT_INTDIR ${CMAKE_BINARY_DIR}/${CMAKE_CFG_INTDIR}/bin)
   set(LLVM_LIBRARY_OUTPUT_INTDIR ${CMAKE_BINARY_DIR}/${CMAKE_CFG_INTDIR}/lib)
-
-  list(APPEND CMAKE_MODULE_PATH "${LLVM_CMAKE_DIR}")
-  include(HandleLLVMOptions)
-  include(AddLLVM)
 
   add_llvm_loadable_module(${LIB_NAME} ${LIB_SOURCES})
 endif()
