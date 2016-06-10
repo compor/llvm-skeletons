@@ -88,6 +88,7 @@ else()
 endif()
 
 include(AddLLVM)
+include(HandleLLVMOptions)
 
 #
 
