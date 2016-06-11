@@ -6,6 +6,10 @@ cmake_minimum_required(VERSION 3.2.0)
 
 set(PROJECT_NAME SkeletonOptPass)
 
+function(msg mode)
+  message(${mode} "${PROJECT_NAME} ${ARGN}")
+endfunction()
+
 # Standalone build or part of LLVM?
 set(PROJECT_STANDALONE_BUILD FALSE)
 
@@ -14,8 +18,7 @@ if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}")
   set(PROJECT_STANDALONE_BUILD TRUE)
 endif()
 
-message(STATUS "Configuring ${PROJECT_NAME} as external LLVM project:\
- ${PROJECT_STANDALONE_BUILD}")
+msg(STATUS "configuring as external LLVM project: ${PROJECT_STANDALONE_BUILD}")
 
 # TODO need to move this to top-level cmake list file
 # CMP0056 is required for any libc++abi dependency of the try_compile() command
@@ -26,7 +29,7 @@ set(PROJECT_POLICIES CMP0056)
 foreach(PROJECT_POLICY ${PROJECT_POLICIES})
   if(POLICY ${PROJECT_POLICY})
     cmake_policy(GET ${PROJECT_POLICY} POLICY_VALUE)
-    message("policy ${PROJECT_POLICY}: ${POLICY_VALUE}")
+    msg(STATUS "policy ${PROJECT_POLICY}: ${POLICY_VALUE}")
   endif()
 endforeach()
 
@@ -42,39 +45,17 @@ include(Python)
 
 # requirements
 
-message(STATUS "Detecting Doxygen dependency")
-
-find_package(Doxygen)
-
-if(${DOXYGEN_FOUND})
-  message(STATUS "Found Doxygen ${DOXYGEN_VERSION}")
-
-  set(DOXYGEN_CFG_FILE_TEMPLATE
-    "${CMAKE_CURRENT_SOURCE_DIR}/docs/doxygen.cfg.in")
-  set(DOXYGEN_CFG_FILE "${CMAKE_CURRENT_BINARY_DIR}/docs/doxygen.cfg")
-
-  configure_file(${DOXYGEN_CFG_FILE_TEMPLATE} ${DOXYGEN_CFG_FILE} @ONLY)
-
-  add_custom_target(doc ${DOXYGEN_EXECUTABLE} ${DOXYGEN_CFG_FILE}
-    WORKING_DIR ${CMAKE_CURRENT_BINARY_DIR}
-    COMMENT "Generating documentation" VERBATIM)
-else()
-  message(STATUS "Could not find Doxygen")
-endif()
-
-#
-
-message(STATUS "Detecting LLVM dependency")
-
 if(${PROJECT_STANDALONE_BUILD})
+  msg(STATUS "detecting LLVM dependency")
+
   # find_package in CONFIG mode will lookup and include LLVMConfig.cmake
   find_package(LLVM REQUIRED CONFIG)
 
   if(${LLVM_FOUND})
-    message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
-    message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
+    msg(STATUS "found LLVM ${LLVM_PACKAGE_VERSION}")
+    msg(STATUS "using LLVMConfig.cmake in: ${LLVM_DIR}")
   else()
-    message(FATAL_ERROR "Could not find LLVM")
+    msg(FATAL_ERROR "Could not find LLVM")
   endif()
 endif()
 
@@ -92,16 +73,38 @@ include(HandleLLVMOptions)
 
 #
 
-#message(STATUS "Detecting external project dependency: ExtDepProject")
+msg(STATUS "detecting Doxygen dependency")
+
+find_package(Doxygen)
+
+if(${DOXYGEN_FOUND})
+  msg(STATUS "found Doxygen ${DOXYGEN_VERSION}")
+
+  set(DOXYGEN_CFG_FILE_TEMPLATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/docs/doxygen.cfg.in")
+  set(DOXYGEN_CFG_FILE "${CMAKE_CURRENT_BINARY_DIR}/docs/doxygen.cfg")
+
+  configure_file(${DOXYGEN_CFG_FILE_TEMPLATE} ${DOXYGEN_CFG_FILE} @ONLY)
+
+  add_custom_target(doc ${DOXYGEN_EXECUTABLE} ${DOXYGEN_CFG_FILE}
+    WORKING_DIR ${CMAKE_CURRENT_BINARY_DIR}
+    COMMENT "generating documentation" VERBATIM)
+else()
+  msg(STATUS "could not find Doxygen")
+endif()
+
+#
+
+#msg(STATUS "detecting external project dependency: ExtDepProject")
 
 #if(IS_DIRECTORY ${EXTDEP_ROOT_DIR})
-  #message(STATUS "Found ExtDepProject root directory: ${EXTDEP_ROOT_DIR}")
+#msg(STATUS "found ExtDepProject root directory: ${EXTDEP_ROOT_DIR}")
   #set(EXTDEP_FOUND ON)
   #set($EXTDEP_INCLUDE_DIR "${EXTDEP_ROOT_DIR}/include/")
   #set(EXTDEP_LIB_DIR "${EXTDEP_ROOT_DIR}/lib/")
   #set(EXTDEP_LIB "dswp")
 #else()
-  #message(WARNING "Could not find: ExtDepProject")
+  #msg(WARNING "Could not find: ExtDepProject")
 #endif()
 
 
@@ -115,13 +118,13 @@ if(NOT ${LLVM_ENABLE_RTTI})
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
 endif()
 
-message(STATUS "${PROJECT_NAME} RTTI support: ${LLVM_ENABLE_RTTI}")
+msg(STATUS "RTTI support: ${LLVM_ENABLE_RTTI}")
 
 if(NOT ${LLVM_ENABLE_EH})
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-exceptions")
 endif()
 
-message(STATUS "${PROJECT_NAME} EH support: ${LLVM_ENABLE_EH}")
+msg(STATUS "EH support: ${LLVM_ENABLE_EH}")
 
 #if(${EXTDEP_FOUND})
 #include_directories(${EXTDEP_INCLUDE_DIR})
