@@ -20,6 +20,10 @@ endif()
 
 msg(STATUS "configuring as external LLVM project: ${PROJECT_STANDALONE_BUILD}")
 
+# add project cmake module path
+set(PROJECT_CMAKE_MODULE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_CMAKE_MODULE_DIR})
+
 # TODO need to move this to top-level cmake list file
 # CMP0056 is required for any libc++abi dependency of the try_compile() command
 # this bumps required version to 3.2
@@ -34,13 +38,6 @@ foreach(PROJECT_POLICY ${PROJECT_POLICIES})
 endforeach()
 
 include(CMakePackageConfigHelpers)
-
-string(TOUPPER ${PROJECT_NAME} PROJECT_CMAKE_MODULE_PREFIX)
-set(PROJECT_CMAKE_MODULE_SUBDIR "cmake/modules")
-set(PROJECT_CMAKE_MODULE_SOURCE_DIR
-  "${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_CMAKE_MODULE_SUBDIR}")
-
-list(APPEND CMAKE_MODULE_PATH ${PROJECT_CMAKE_MODULE_SOURCE_DIR})
 include(Python)
 
 # requirements
@@ -95,17 +92,16 @@ endif()
 
 #
 
-#msg(STATUS "detecting external project dependency: ExtDepProject")
+# TODO better way to handle external deps
+msg(STATUS "detecting external project dependency")
 
-#if(IS_DIRECTORY ${EXTDEP_ROOT_DIR})
-#msg(STATUS "found ExtDepProject root directory: ${EXTDEP_ROOT_DIR}")
-  #set(EXTDEP_FOUND ON)
-  #set($EXTDEP_INCLUDE_DIR "${EXTDEP_ROOT_DIR}/include/")
-  #set(EXTDEP_LIB_DIR "${EXTDEP_ROOT_DIR}/lib/")
-  #set(EXTDEP_LIB "dswp")
-#else()
-  #msg(WARNING "Could not find: ExtDepProject")
-#endif()
+if(is_directory ${extdep_root_dir})
+  msg(status "found extdepproject root directory: ${extdep_root_dir}")
+  set(extdep_found on)
+  set($extdep_include_dir "${extdep_root_dir}/include/")
+  set(extdep_lib_dir "${extdep_root_dir}/lib/")
+  set(extdep_lib "dswp")
+endif()
 
 
 # project configuration
@@ -170,9 +166,9 @@ endif()
 #llvm_map_components_to_libnames(llvm_libs core support passes)
 #target_link_libraries(${LIB_NAME} ${llvm_libs})
 
-#if(${EXTDEP_FOUND})
-  #target_link_libraries(${LIB_NAME} ${EXTDEP_LIB})
-#endif()
+if(${EXTDEP_FOUND})
+  target_link_libraries(${LIB_NAME} ${EXTDEP_LIB})
+endif()
 
 
 #
@@ -183,7 +179,7 @@ endif()
 get_target_property(PROJECT_LIB_NAMES ${LIB_NAME} NAME)
 set(PROJECT_LIB_NAMES "${PROJECT_LIB_NAMES} ${LIB_NAME}.so lib${LIB_NAME}.so")
 
-configure_file(${PROJECT_CMAKE_MODULE_SOURCE_DIR}/SkeletonOptPassConfig.cmake.in
+configure_file(${PROJECT_CMAKE_MODULE_DIR}/SkeletonOptPassConfig.cmake.in
   "share/${PROJECT_NAME}/cmake/${PROJECT_NAME}Config.cmake"
   @ONLY)
 
