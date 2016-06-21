@@ -71,14 +71,21 @@ include(HandleLLVMOptions)
 
 msg(STATUS "detecting Python and LLVM lit/FileCheck dependency")
 
+set(TEST_INFRASTRUCTURE_FOUND TRUE)
+
 include(Python)
 
-find_python_module(lit REQUIRED)
+find_python_module(lit)
 
 if(NOT EXISTS ${LLVM_TOOLS_BINARY_DIR}/FileCheck)
-  msg(FATAL_ERROR "Could not find FileCheck. Please configure LLVM properly.")
+  set(TEST_INFRASTRUCTURE_FOUND FALSE)
+  msg(WARNING "Could not find FileCheck. Please configure LLVM properly.")
 endif()
 
+if(NOT ${PY_LIT_FOUND})
+  set(TEST_INFRASTRUCTURE_FOUND FALSE)
+  msg(WARNING "Could not find Python lit module.")
+endif()
 
 #
 
@@ -182,9 +189,22 @@ if(${EXTDEP_FOUND})
   target_link_libraries(${LIB_NAME} ${EXTDEP_LIB})
 endif()
 
-
 #
 
+if(${TEST_INFRASTRUCTURE_FOUND})
+  # set various configuration settings in the test suite
+  configure_file("${CMAKE_CURRENT_SOURCE_DIR}/tests/lit.cfg.in" 
+    "${CMAKE_CURRENT_BINARY_DIR}/tests/lit.cfg")
+
+  # provide the make check target based on lit
+  add_custom_target(check
+    COMMAND ${PYTHON_EXECUTABLE} -m lit.main
+    "${CMAKE_CURRENT_BINARY_DIR}/tests" -v DEPENDS ${LIB_NAME}
+    COMMENT "Adding custom test target"
+    VERBATIM)
+endif()
+
+#
 
 # TODO better way to deduce library name, especially when using llvm cmake
 # functions
