@@ -38,7 +38,6 @@ foreach(PROJECT_POLICY ${PROJECT_POLICIES})
 endforeach()
 
 include(CMakePackageConfigHelpers)
-include(Python)
 
 # requirements
 
@@ -67,6 +66,19 @@ endif()
 
 include(AddLLVM)
 include(HandleLLVMOptions)
+
+#
+
+msg(STATUS "detecting Python and LLVM lit/FileCheck dependency")
+
+include(Python)
+
+find_python_module(lit REQUIRED)
+
+if(NOT EXISTS ${LLVM_TOOLS_BINARY_DIR}/FileCheck)
+  msg(FATAL_ERROR "Could not find FileCheck. Please configure LLVM properly.")
+endif()
+
 
 #
 
