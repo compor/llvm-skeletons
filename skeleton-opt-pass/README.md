@@ -53,8 +53,8 @@ A generic skeleton for LLVM's opt tool
 - consider alternative extension points for automatic registration with clang
 - how custom registration works with 2 custom passes that are automatically
   registered with clang
-- add tests
-- add unittests (using lit?)
+- ~~add tests~~
+- add unittests
 - ~~add doc generation~~
   - beautify doc generation
 - ~~add cmake export files for `find_package` capability~~
