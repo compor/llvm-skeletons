@@ -3,7 +3,7 @@
 # initialize configuration vars
 
 SRC_DIR=""
-INSTALL_DIR=""
+INSTALL_PREFIX=""
 
 
 # set configuration vars
@@ -17,9 +17,9 @@ fi
 SRC_DIR=$1
 
 if [ -z "$2" ]; then 
-  INSTALL_DIR="${SRC_DIR}/../install/"
+  INSTALL_PREFIX="${SRC_DIR}/../install/"
 else
-  INSTALL_DIR="$2"
+  INSTALL_PREFIX="$2"
 fi
 
 
@@ -27,7 +27,7 @@ fi
 
 echo "info: printing configuation vars"
 echo "info: source dir: ${SRC_DIR}"
-echo "info: install dir: ${INSTALL_DIR}"
+echo "info: install dir: ${INSTALL_PREFIX}"
 echo ""
 
 
@@ -42,7 +42,7 @@ CC=clang CXX=clang++ \
   -DCMAKE_EXE_LINKER_FLAGS="${LINKER_FLAGS}" \
   -DCMAKE_SHARED_LINKER_FLAGS="${LINKER_FLAGS}" \
   -DCMAKE_MODULE_LINKER_FLAGS="${LINKER_FLAGS}" \
-  -DCMAKE_INSTALL_PREFIX="${INSTALL_DIR}" \
+  -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
   -DUSE_LLVM_INTERNAL_MODULE_FUNCTION=OFF \
   "${SRC_DIR}"
 
