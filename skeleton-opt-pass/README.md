@@ -39,31 +39,4 @@ A generic skeleton for LLVM's opt tool
 - When the build script uses LLVM's cmake utility functions the `lib` shared
   library prefix is omitted
 
-## TODO
-
-- ~~check library dependencies when plugin is built with LLVM's internal cmake
-  utility functions~~
-- explore instruction uses and users according to LLVM reference manual
-- ~~check the dynamic section of the built shared object with `readelf`~~
-  - no `RPATH` used
-- built and execute with:
-  - ~~LLVM 3.8.0~~
-  - LLVM trunk
-- ~~add automatic plugin registration to clang~~
-- consider alternative extension points for automatic registration with clang
-- how custom registration works with 2 custom passes that are automatically
-  registered with clang
-- ~~add tests~~
-- add unittests
-- ~~add doc generation~~
-  - beautify doc generation
-- ~~add cmake export files for `find_package` capability~~
-  - ~~test it within another project~~
-  - create separate build and install config cmake files
-  - generate config version cmake files
-  - determine library name properly
-  - fix link dependencies on dependent project
-- maybe make it even more generic by allowing customization of:
-  - pass name
-  - pass base to inherit from
 
