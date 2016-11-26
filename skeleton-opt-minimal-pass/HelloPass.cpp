@@ -8,23 +8,38 @@
 #include "llvm/Transforms/IPO/PassManagerBuilder.h"
 
 
-using namespace llvm;
+#define DEBUG_TYPE "hello_pass"
+
+#ifndef NDEBUG
+  #define PLUGIN_OUT llvm::outs()
+  //#define PLUGIN_OUT llvm::nulls()
+
+  // convenience macro when building against a NDEBUG LLVM
+  #undef DEBUG
+  #define DEBUG(X) do { X; } while(0);
+#else // NDEBUG
+  #define PLUGIN_OUT llvm::dbgs()
+#endif // NDEBUG
+
+#define PLUGIN_ERR llvm::errs()
+
+
 
 namespace {
 
-struct Hello : public FunctionPass {
+struct Hello : public llvm::FunctionPass {
     static char ID;
 
-    Hello() : FunctionPass(ID) {}
+    Hello() : llvm::FunctionPass(ID) {}
 
-    bool runOnFunction(Function &f) override {
-        errs() << "Hello pass : ";
-        errs() << " function name : ";
-        errs().write_escaped(f.getName());
+    bool runOnFunction(llvm::Function &f) override {
+        PLUGIN_OUT << "Hello pass : ";
+        PLUGIN_OUT << " function name : ";
+        PLUGIN_OUT.write_escaped(f.getName());
         auto ret_type = f.getReturnType();
-        errs() << "\twith ret type : ";
-        ret_type->print(errs());
-        errs() << "\n";
+        PLUGIN_OUT << "\twith ret type : ";
+        ret_type->print(PLUGIN_OUT);
+        PLUGIN_OUT << "\n";
 
         return false;
     }
@@ -34,17 +49,17 @@ struct Hello : public FunctionPass {
 
 
 char Hello::ID = 0;
-static RegisterPass<Hello> X("hello", "Hello World Pass", false, false);
+static llvm::RegisterPass<Hello> X("hello", "Hello World Pass", false, false);
 
 
-static void registerHelloPass(const PassManagerBuilder &Builder,
-                              legacy::PassManagerBase &PM) {
+static void registerHelloPass(const llvm::PassManagerBuilder &Builder,
+                              llvm::legacy::PassManagerBase &PM) {
   PM.add(new Hello());
 
   return;
 }
 
 
-static RegisterStandardPasses RegisterHelloPass(PassManagerBuilder::EP_EarlyAsPossible,
-                                                registerHelloPass);
+static llvm::RegisterStandardPasses RegisterHelloPass(
+  llvm::PassManagerBuilder::EP_EarlyAsPossible, registerHelloPass);
 
