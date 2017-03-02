@@ -53,3 +53,9 @@ include_directories(${LLVM_INCLUDE_DIRS})
 
 add_library(LLVMHelloPass MODULE HelloPass.cpp)
 
+
+# installation
+
+install(TARGETS LLVMHelloPass LIBRARY 
+  DESTINATION "./lib/")
+
