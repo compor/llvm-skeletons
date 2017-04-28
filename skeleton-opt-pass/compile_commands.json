@@ -1,7 +1,0 @@
-[
-{
-  "directory": "/bulk/workbench/repos/build-skeleton-pass2",
-  "command": "/bulk/workbench/llvm/3.8/toolchain1/bin/clang++   -DLLVMSkeletonOptPass_EXPORTS -DVERSION_STRING=38c9dbe -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/bulk/workbench/llvm/3.8/toolchain1/include -I/bulk/workbench/repos/llvm-skeletons/skeleton-opt-pass/include  -stdlib=libc++ -fPIC -fvisibility-inlines-hidden -Werror=date-time -std=c++11 -std=c++14 -fno-rtti -fno-exceptions -g -fPIC   -o CMakeFiles/LLVMSkeletonOptPass.dir/lib/SkeletonOptPass.cpp.o -c /bulk/workbench/repos/llvm-skeletons/skeleton-opt-pass/lib/SkeletonOptPass.cpp",
-  "file": "/bulk/workbench/repos/llvm-skeletons/skeleton-opt-pass/lib/SkeletonOptPass.cpp"
-}
-]
