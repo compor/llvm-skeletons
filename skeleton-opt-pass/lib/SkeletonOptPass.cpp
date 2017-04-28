@@ -35,7 +35,7 @@
 
 #include "SkeletonOptPass.cpp"
 
-#define DEBUG_TYPE "SOP"
+#define DEBUG_TYPE "skeletonoptpass"
 
 
 #ifndef NDEBUG
