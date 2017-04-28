@@ -34,8 +34,8 @@ function(attach_compilation_db_command trgt)
 
   add_custom_command(TARGET ${trgt} POST_BUILD
     COMMAND ${CMAKE_COMMAND}
-    ARGS -E copy_if_different ${file} "${CMAKE_SOURCE_DIR}/${file}"
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    ARGS -E copy_if_different ${file} "${CMAKE_CURRENT_SOURCE_DIR}/${file}"
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     VERBATIM)
 endfunction()
 
