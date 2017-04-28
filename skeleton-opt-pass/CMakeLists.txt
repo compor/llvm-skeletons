@@ -42,12 +42,6 @@ set_policies(CMP0056 NEW)
 
 handle_llvm_dependency(${PRJ_STANDALONE_BUILD})
 
-#
-
-add_subdirectory(unittests)
-add_subdirectory(tests)
-add_subdirectory(docs)
-
 
 # project configuration
 
@@ -66,6 +60,8 @@ endif()
 msg(STATUS "EH support: ${LLVM_ENABLE_EH}")
 
 
+#
+
 set(LIB_NAME "LLVMSkeletonOptPass")
 set(LIB_SOURCES "lib/SkeletonOptPass.cpp")
 
@@ -82,15 +78,13 @@ else()
   add_llvm_loadable_module(${LIB_NAME} ${LIB_SOURCES})
 endif()
 
-# according to
-# http://llvm.org/docs/CMake.html
+# according to http://llvm.org/docs/CMake.html
 # we do not need the below library dependencies since the plugin will be loaded
 # via opt or clang which already have those libs in their dependencies
-# comment out the following two statements
-# to test against static lib LLVM build
+# comment out the following two statements to test against static lib LLVM build
 
-#llvm_map_components_to_libnames(llvm_libs core support passes)
-#target_link_libraries(${LIB_NAME} ${llvm_libs})
+#llvm_map_components_to_libnames(llvm_libs core support analysis ipo passes)
+#target_link_libraries(${LIB_NAME} PUBLIC ${llvm_libs})
 
 target_compile_definitions(${LIB_NAME} PUBLIC ${LLVM_DEFINITIONS})
 target_compile_definitions(${LIB_NAME} PUBLIC VERSION_STRING=${PRJ_VERSION})
@@ -98,13 +92,17 @@ target_compile_definitions(${LIB_NAME} PUBLIC VERSION_STRING=${PRJ_VERSION})
 target_include_directories(${LIB_NAME} PUBLIC ${LLVM_INCLUDE_DIRS})
 target_include_directories(${LIB_NAME} PUBLIC "include")
 
+#
 
-# TODO better way to deduce library name, especially when using llvm cmake
-# functions
-get_target_property(PRJ_LIB_NAMES ${LIB_NAME} NAME)
-set(PRJ_LIB_NAMES "${PRJ_LIB_NAMES} ${LIB_NAME}.so lib${LIB_NAME}.so")
+set(TESTEE_LIB ${LIB_NAME})
+
+add_subdirectory(unittests)
+add_subdirectory(tests)
+add_subdirectory(docs)
+
 
 attach_compilation_db_command(${LIB_NAME})
+
 
 #
 
