@@ -11,6 +11,7 @@ if(NOT GTEST_FOUND)
 endif()
 
 find_package(Threads REQUIRED)
+find_package(Boost REQUIRED)
 
 # configuration
 
@@ -31,7 +32,7 @@ set(TESTEE_LIB_FILENAME "${lib_prefix}${TESTEE_LIB}${lib_suffix}")
 # aggregate unit test targets under a pseudo-target
 add_custom_target(unittests)
 
-set(PRJ_TEST_NAMES TestLoopExitCategorization)
+set(PRJ_TEST_NAMES TestDummy)
 
 foreach(prj_test_name ${PRJ_TEST_NAMES})
   set(TEST_SOURCES "${prj_test_name}.cpp")
@@ -43,6 +44,7 @@ foreach(prj_test_name ${PRJ_TEST_NAMES})
   target_include_directories(${prj_test_name} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
   target_include_directories(${prj_test_name} PUBLIC ${GTEST_INCLUDE_DIRS})
   target_include_directories(${prj_test_name} PUBLIC ${LLVM_INCLUDE_DIRS})
+  target_include_directories(${prj_test_name} PUBLIC ${Boost_INCLUDE_DIRS})
   target_include_directories(${prj_test_name} PUBLIC 
     "${CMAKE_SOURCE_DIR}/include")
 
