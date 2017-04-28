@@ -33,6 +33,7 @@
 // using DEBUG macro
 // using llvm::dbgs
 
+#include "SkeletonOptPass.cpp"
 
 #define DEBUG_TYPE "SOP"
 
