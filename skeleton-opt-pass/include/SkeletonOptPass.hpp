@@ -2,6 +2,9 @@
 //
 //
 
+#ifndef SKELETONOPTPASS_HPP
+#define SKELETONOPTPASS_HPP
+
 #include "llvm/Pass.h"
 // using llvm::FunctionPass
 
@@ -23,4 +26,4 @@ public:
 
 } // namespace unnamed end
 
-
+#endif // end of innclude guard: SKELETONOPTPASS_HPP
