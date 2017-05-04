@@ -15,8 +15,7 @@ function(find_python_module name)
   print re.compile('/__init__.py.*').sub('',${name}.__file__)")
 
   if(PYTHONINTERP_FOUND)
-    execute_process(COMMAND
-      ${PYTHON_EXECUTABLE} "-c" "${prg_str}"
+    execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "${prg_str}"
       RESULT_VARIABLE result
       OUTPUT_VARIABLE location
       ERROR_QUIET
@@ -26,7 +25,8 @@ function(find_python_module name)
   endif()
 
   if(NOT result)
-    message(STATUS "location ${location} of Python module: ${module}")
+    message(STATUS "location '${location}' of Python module: ${module}")
+    set(${module} ${location})
     set(${module} ${location} CACHE STRING "Location of Python module: ${name}")
   endif()
 
