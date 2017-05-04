@@ -2,6 +2,7 @@
 #include "llvm/Pass.h"
 #include "llvm/IR/Type.h"
 #include "llvm/IR/Function.h"
+#include "llvm/Support/CommandLine.h"
 #include "llvm/Support/raw_ostream.h"
 
 #include "llvm/IR/LegacyPassManager.h"
@@ -23,7 +24,7 @@
 
 #define PLUGIN_ERR llvm::errs()
 
-
+static llvm::cl::list<std::string> Lists("lists", llvm::cl::desc("Specify names"), llvm::cl::OneOrMore);
 
 namespace {
 
