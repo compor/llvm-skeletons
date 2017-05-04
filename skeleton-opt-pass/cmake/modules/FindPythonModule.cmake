@@ -31,5 +31,7 @@ function(find_python_module name)
   endif()
 
   find_package_handle_standard_args(${pkg_name} DEFAULT_MSG ${module})
+
+  set("${module}_FOUND" ${${pkg_name}_FOUND} PARENT_SCOPE)
 endfunction()
 
