@@ -5,7 +5,7 @@ import platform
 from lit import formats
 
 config.name = 'skeleton-opt-pass-tests'
-config.test_source_root = os.path.join("@CMAKE_CURRENT_SOURCE_DIR@", 'tests')
+config.test_source_root = '@CMAKE_CURRENT_SOURCE_DIR@'
 
 # Configuration file for the 'lit' test runner.
 config.test_format = formats.ShTest(True)
@@ -20,13 +20,14 @@ config.suffixes = ['.ll', '.c', '.cpp', '.test', '.txt', '.s']
 config.excludes = ['CMakeCache.txt', 'CMakeFiles', 'CMakeLists.txt']
 
 config.substitutions.append(('%bindir', "@CMAKE_BINARY_DIR@"))
+config.substitutions.append(('%testee_name', "@TESTEE_LIB@"))
 
 # environment: Set PATH as required
 config.environment['PATH'] = os.pathsep.join(["@LLVM_TOOLS_BINARY_DIR@", 
     config.environment['PATH']])
 config.environment['LLVM_ROOT'] = "@LLVM_INSTALL_PREFIX@"
-config.environment['CMAKE_SOURCE_DIR'] = "@CMAKE_SOURCE_DIR@"
-config.environment['MOD_EXT'] = "@CMAKE_SHARED_LIBRARY_SUFFIX@"
+config.environment['TESTEE_PREFIX'] = "@TESTEE_PREFIX@"
+config.environment['TESTEE_SUFFIX'] = "@TESTEE_SUFFIX@"
 
 # vim:ft=python
 

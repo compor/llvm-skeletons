@@ -25,7 +25,7 @@ function(find_python_module name)
   endif()
 
   if(NOT result)
-    message(STATUS "location '${location}' of Python module: ${module}")
+    message(STATUS "Python module ${module} location: '${location}'")
     set(${module} ${location})
     set(${module} ${location} CACHE STRING "Location of Python module: ${name}")
   endif()

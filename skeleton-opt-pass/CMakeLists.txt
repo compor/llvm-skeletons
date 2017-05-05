@@ -95,6 +95,16 @@ target_include_directories(${LIB_NAME} PUBLIC "include")
 #
 
 set(TESTEE_LIB ${LIB_NAME})
+get_property(TESTEE_PREFIX TARGET ${TESTEE_LIB} PROPERTY PREFIX)
+get_property(TESTEE_SUFFIX TARGET ${TESTEE_LIB} PROPERTY SUFFIX)
+
+if(NOT TESTEE_PREFIX)
+  set(TESTEE_PREFIX ${CMAKE_SHARED_MODULE_PREFIX})
+endif()
+
+if(NOT TESTEE_SUFFIX)
+  set(TESTEE_SUFFIX ${CMAKE_SHARED_MODULE_SUFFIX})
+endif()
 
 add_subdirectory(unittests)
 add_subdirectory(tests)

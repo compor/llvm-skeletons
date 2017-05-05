@@ -25,7 +25,7 @@ fi
 
 # print configuration vars
 
-echo "info: printing configuation vars"
+echo "info: printing configuration vars"
 echo "info: source dir: ${SRC_DIR}"
 echo "info: install dir: ${INSTALL_DIR}"
 echo ""
@@ -44,6 +44,7 @@ CC=clang CXX=clang++ \
   -DCMAKE_MODULE_LINKER_FLAGS="${LINKER_FLAGS}" \
   -DCMAKE_INSTALL_PREFIX="${INSTALL_DIR}" \
   -DPRJ_USE_LLVM_INTERNAL_MODULE=OFF \
+  -DBOOST_ROOT=${BOOST_ROOT} \
   -DGTEST_ROOT=${GTEST_ROOT} \
   "${SRC_DIR}"
 
