@@ -34,6 +34,9 @@
 #include "llvm/AsmParser/Parser.h"
 // using llvm::parseAssemblyString
 
+#include "llvm/IR/Verifier.h"
+// using llvm::verifyModule
+
 #include "llvm/Support/ErrorHandling.h"
 // using llvm::report_fatal_error
 
@@ -60,9 +63,9 @@ struct test_result_visitor : public boost::static_visitor<unsigned int> {
 
 class TestDummy : public testing::Test {
 public:
-  TestDummy() : m_Module{nullptr} {}
+  TestDummy() : m_Module{nullptr}, m_TestDataDir{"./unittests/data/"} {}
 
-  void ParseAssembly(const char *Assembly) {
+  void ParseAssemblyString(const char *Assembly) {
     llvm::SMDiagnostic err;
 
     m_Module =
@@ -75,9 +78,27 @@ public:
     if (!m_Module)
       llvm::report_fatal_error(os.str().c_str());
 
-    auto *Func = m_Module->getFunction("test");
-    if (!Func)
-      llvm::report_fatal_error("Test must have a function named @test");
+    return;
+  }
+
+  void ParseAssemblyFile(const char *Filename) {
+    llvm::SMDiagnostic err;
+
+    std::string fullFilename{m_TestDataDir};
+    fullFilename += Filename;
+
+    m_Module =
+        llvm::parseAssemblyFile(fullFilename, err, llvm::getGlobalContext());
+
+    std::string errMsg;
+    llvm::raw_string_ostream os(errMsg);
+    err.print("", os);
+
+    if (llvm::verifyModule(*m_Module, &(llvm::errs())))
+      llvm::report_fatal_error("module verification failed\n");
+
+    if (!m_Module)
+      llvm::report_fatal_error(os.str().c_str());
 
     return;
   }
@@ -131,9 +152,10 @@ public:
         return false;
       }
 
-      test_result_map::const_iterator lookup(const std::string &subcase) {
+      test_result_map::const_iterator lookup(const std::string &subcase,
+                                             bool fatalIfMissing = false) {
         auto found = m_trm.find(subcase);
-        if (m_trm.end() == found) {
+        if (fatalIfMissing && m_trm.end() == found) {
           llvm::errs() << "subcase: " << subcase << " test data not found\n";
           std::abort();
         }
@@ -158,10 +180,11 @@ public:
 
 protected:
   std::unique_ptr<llvm::Module> m_Module;
+  const char *m_TestDataDir;
 };
 
 TEST_F(TestDummy, DISABLE_RegularLoopExits) {
-  ParseAssembly("define void @test() {\n"
+  ParseAssemblyString("define void @test() {\n"
                 "%i = alloca i32, align 4\n"
                 "%a = alloca i32, align 4\n"
                 "store i32 100, i32* %i, align 4\n"
