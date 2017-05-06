@@ -81,34 +81,34 @@ static llvm::RegisterStandardPasses
 namespace {
 
 bool SkeletonOptPass::runOnFunction(llvm::Function &f) {
-  DEBUG(PLUGIN_OUT << "skeleton pass : ");
-  DEBUG(PLUGIN_OUT << " function name : ");
-  DEBUG(PLUGIN_OUT.write_escaped(f.getName()));
+  // DEBUG(PLUGIN_OUT << "skeleton pass : ");
+  // DEBUG(PLUGIN_OUT << " function name : ");
+  // DEBUG(PLUGIN_OUT.write_escaped(f.getName()));
   auto ret_type = f.getReturnType();
-  DEBUG(PLUGIN_OUT << "\twith ret type : ");
-  DEBUG(ret_type->print(PLUGIN_OUT));
+  // DEBUG(PLUGIN_OUT << "\twith ret type : ");
+  // DEBUG(ret_type->print(PLUGIN_OUT));
 
-  DEBUG(PLUGIN_OUT << "\n---\n");
+  // DEBUG(PLUGIN_OUT << "\n---\n");
 
   for (auto bi = f.begin(); f.end() != bi; ++bi)
     for (auto ii = bi->begin(); bi->end() != ii; ++ii) {
-      DEBUG(PLUGIN_OUT << "users of : " << *ii << "\n");
+      // DEBUG(PLUGIN_OUT << "users of : " << *ii << "\n");
       for (auto user : ii->users()) {
         // TODO what about other users?
         if (auto user_inst = llvm::dyn_cast<llvm::Instruction>(user))
-          DEBUG(PLUGIN_OUT << "\t" << *user_inst << "\n\n");
+          ; // DEBUG(PLUGIN_OUT << "\t" << *user_inst << "\n\n");
       }
 
-      DEBUG(PLUGIN_OUT << "\twhich uses:\n");
+      // DEBUG(PLUGIN_OUT << "\twhich uses:\n");
 
       for (auto &use : ii->operands()) {
         auto v = use.get();
-        DEBUG(PLUGIN_OUT << "\t");
-        DEBUG(v->print(PLUGIN_OUT));
-        DEBUG(PLUGIN_OUT << "\n");
+        // DEBUG(PLUGIN_OUT << "\t");
+        // DEBUG(v->print(PLUGIN_OUT));
+        // DEBUG(PLUGIN_OUT << "\n");
       }
 
-      DEBUG(PLUGIN_OUT << "\n---\n");
+      // DEBUG(PLUGIN_OUT << "\n---\n");
     }
 
   return false;
