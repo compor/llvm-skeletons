@@ -2,7 +2,7 @@
 //
 //
 
-#include "SkeletonOptPass.hpp"
+#define DEBUG_TYPE "skeletonoptpass"
 
 #include "llvm/Pass.h"
 // using llvm::RegisterPass
@@ -33,20 +33,20 @@
 // using DEBUG macro
 // using llvm::dbgs
 
-#include "SkeletonOptPass.cpp"
-
-#define DEBUG_TYPE "skeletonoptpass"
-
+#include "SkeletonOptPass.hpp"
 
 #ifndef NDEBUG
-  #define PLUGIN_OUT llvm::outs()
-  //#define PLUGIN_OUT llvm::nulls()
+#define PLUGIN_OUT llvm::outs()
+//#define PLUGIN_OUT llvm::nulls()
 
-  // convenience macro when building against a NDEBUG LLVM
-  #undef DEBUG
-  #define DEBUG(X) do { X; } while(0);
+// convenience macro when building against a NDEBUG LLVM
+#undef DEBUG
+#define DEBUG(X)                                                               \
+  do {                                                                         \
+    X;                                                                         \
+  } while (0);
 #else // NDEBUG
-  #define PLUGIN_OUT llvm::dbgs()
+#define PLUGIN_OUT llvm::dbgs()
 #endif // NDEBUG
 
 #define PLUGIN_ERR llvm::errs()
@@ -54,8 +54,8 @@
 // plugin registration for opt
 
 char SkeletonOptPass::ID = 0;
-static llvm::RegisterPass<SkeletonOptPass> X("skeleton-opt-pass", "skeleton pass", false, false);
-
+static llvm::RegisterPass<SkeletonOptPass> X("skeleton-opt-pass",
+                                             "skeleton pass", false, false);
 
 // plugin registration for clang
 
@@ -66,23 +66,21 @@ static llvm::RegisterPass<SkeletonOptPass> X("skeleton-opt-pass", "skeleton pass
 // RegisterStandardPasses class
 
 static void registerSkeletonOptPass(const llvm::PassManagerBuilder &Builder,
-                                    llvm::legacy::PassManagerBase &PM)
-{
+                                    llvm::legacy::PassManagerBase &PM) {
   PM.add(new SkeletonOptPass());
 
   return;
 }
 
 static llvm::RegisterStandardPasses
-RegisterSkeletonOptPass(llvm::PassManagerBuilder::EP_EarlyAsPossible, registerSkeletonOptPass);
-
+    RegisterSkeletonOptPass(llvm::PassManagerBuilder::EP_EarlyAsPossible,
+                            registerSkeletonOptPass);
 
 //
 
 namespace {
 
-bool
-SkeletonOptPass::runOnFunction(llvm::Function &f) {
+bool SkeletonOptPass::runOnFunction(llvm::Function &f) {
   DEBUG(PLUGIN_OUT << "skeleton pass : ");
   DEBUG(PLUGIN_OUT << " function name : ");
   DEBUG(PLUGIN_OUT.write_escaped(f.getName()));
@@ -99,7 +97,6 @@ SkeletonOptPass::runOnFunction(llvm::Function &f) {
         // TODO what about other users?
         if (auto user_inst = llvm::dyn_cast<llvm::Instruction>(user))
           DEBUG(PLUGIN_OUT << "\t" << *user_inst << "\n\n");
-
       }
 
       DEBUG(PLUGIN_OUT << "\twhich uses:\n");
@@ -118,5 +115,3 @@ SkeletonOptPass::runOnFunction(llvm::Function &f) {
 }
 
 } // namespace unnamed end
-
-
