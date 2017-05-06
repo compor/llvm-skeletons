@@ -54,41 +54,37 @@
 namespace icsa {
 namespace {
 
-using test_result_t = boost::variant<unsigned int>;
+using test_result_t = boost::variant<bool, unsigned int>;
 using test_result_map = std::map<std::string, test_result_t>;
 
 struct test_result_visitor : public boost::static_visitor<unsigned int> {
+  unsigned int operator()(bool b) const { return b ? 1 : 0; }
   unsigned int operator()(unsigned int i) const { return i; }
 };
 
 class TestDummy : public testing::Test {
 public:
+  enum struct AssembyHolderType : int { FILE_TYPE, STRING_TYPE };
+
+
   TestDummy() : m_Module{nullptr}, m_TestDataDir{"./unittests/data/"} {}
 
-  void ParseAssemblyString(const char *Assembly) {
+  void ParseAssembly(
+      const char *AssemblyHolder,
+      const AssembyHolderType asmHolder = AssembyHolderType::FILE_TYPE) {
     llvm::SMDiagnostic err;
 
-    m_Module =
-        llvm::parseAssemblyString(Assembly, err, llvm::getGlobalContext());
-
-    std::string errMsg;
-    llvm::raw_string_ostream os(errMsg);
-    err.print("", os);
-
-    if (!m_Module)
-      llvm::report_fatal_error(os.str().c_str());
-
-    return;
-  }
-
-  void ParseAssemblyFile(const char *Filename) {
-    llvm::SMDiagnostic err;
-
+    if (AssembyHolderType::FILE_TYPE == asmHolder) {
     std::string fullFilename{m_TestDataDir};
-    fullFilename += Filename;
+      fullFilename += AssemblyHolder;
 
     m_Module =
         llvm::parseAssemblyFile(fullFilename, err, llvm::getGlobalContext());
+
+    } else {
+      m_Module = llvm::parseAssemblyString(AssemblyHolder, err,
+                                           llvm::getGlobalContext());
+    }
 
     std::string errMsg;
     llvm::raw_string_ostream os(errMsg);
@@ -184,7 +180,7 @@ protected:
 };
 
 TEST_F(TestDummy, DISABLE_RegularLoopExits) {
-  ParseAssemblyString("define void @test() {\n"
+  ParseAssembly("define void @test() {\n"
                 "%i = alloca i32, align 4\n"
                 "%a = alloca i32, align 4\n"
                 "store i32 100, i32* %i, align 4\n"
@@ -203,7 +199,8 @@ TEST_F(TestDummy, DISABLE_RegularLoopExits) {
                 "br label %1\n"
 
                 "ret void\n"
-                "}\n");
+                "}\n",
+    AssemblyHolderType::STRING_TYPE);
 
   test_result_map trm;
 
