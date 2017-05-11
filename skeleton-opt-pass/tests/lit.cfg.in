@@ -4,7 +4,7 @@ import platform
 
 from lit import formats
 
-config.name = 'skeleton-opt-pass-tests'
+config.name = '@PRJ_NAME@-opt-pass-tests'
 config.test_source_root = '@CMAKE_CURRENT_SOURCE_DIR@'
 
 # Configuration file for the 'lit' test runner.
@@ -23,8 +23,9 @@ config.substitutions.append(('%bindir', "@CMAKE_BINARY_DIR@"))
 config.substitutions.append(('%testee_name', "@TESTEE_LIB@"))
 
 # environment: Set PATH as required
-config.environment['PATH'] = os.pathsep.join(["@LLVM_TOOLS_BINARY_DIR@", 
-    config.environment['PATH']])
+config.environment['PATH'] = os.pathsep.join(["@LLVM_TOOLS_BINARY_DIR@",
+                                              config.environment['PATH']])
+config.environment['PRJ_NAME'] = "@PRJ_NAME@"
 config.environment['LLVM_ROOT'] = "@LLVM_INSTALL_PREFIX@"
 config.environment['TESTEE_PREFIX'] = "@TESTEE_PREFIX@"
 config.environment['TESTEE_SUFFIX'] = "@TESTEE_SUFFIX@"

@@ -1,4 +1,4 @@
-; RUN: opt -load %bindir/${TESTEE_PREFIX}LLVMSkeletonOptPass${TESTEE_SUFFIX} -skeleton-opt-pass -S < %s | FileCheck %s
+; RUN: opt -load %bindir/${TESTEE_PREFIX}LLVM${PRJ_NAME}Pass${TESTEE_SUFFIX} -skeleton-opt-pass -S < %s | FileCheck %s
 
 ; CHECK-LABEL: foo
 ; CHECK: alloca i32

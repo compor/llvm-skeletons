@@ -18,7 +18,7 @@ option(PRJ_USE_LLVM_INTERNAL_MODULE TRUE)
 
 get_version(PRJ_VERSION)
 
-set(PRJ_NAME SkeletonOptPass)
+set(PRJ_NAME SkeletonOpt)
 
 # part of LLVM or standalone
 set(PRJ_STANDALONE_BUILD FALSE)
@@ -62,7 +62,7 @@ msg(STATUS "EH support: ${LLVM_ENABLE_EH}")
 
 #
 
-set(LIB_NAME "LLVMSkeletonOptPass")
+set(LIB_NAME "LLVM${PRJ_NAME}Pass")
 set(LIB_SOURCES "lib/SkeletonOptPass.cpp")
 
 if(NOT PRJ_USE_LLVM_INTERNAL_MODULE)
@@ -129,10 +129,18 @@ write_basic_package_version_file(
 
 # installation
 
-# TODO see how in LLVM projects get installed
+set(PRJ_INSTALL_INCLUDE_DIR "include")
+set(PRJ_INSTALL_SHARE_DIR "share")
+
+if(NOT PRJ_STANDALONE_BUILD)
+  set(PRJ_INSTALL_INCLUDE_DIR ${PRJ_NAME}${PRJ_INSTALL_INCLUDE_DIR})
+  set(PRJ_INSTALL_SHARE_DIR ${PRJ_NAME}${PRJ_INSTALL_SHARE_DIR})
+endif()
+
 if(PRJ_STANDALONE_BUILD)
   install(TARGETS ${LIB_NAME} LIBRARY DESTINATION "lib")
-  install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/" DESTINATION "include")
-  install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/share" DESTINATION .)
 endif()
+
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/" DESTINATION include)
+install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/share" DESTINATION share)
 
