@@ -1,3 +1,11 @@
+# cmake file
+
+if(PRJ_SKIP_TESTS)
+  message(WARNING "Testing is disabled; skipping unit tests")
+
+  return()
+endif()
+
 
 include(FindPythonModule)
 
