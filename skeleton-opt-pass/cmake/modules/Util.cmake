@@ -1,27 +1,32 @@
 # cmake file
 
-function(fatal message_txt)
-  message(FATAL_ERROR "${message_txt}")
-endfunction()
-
+include(CMakeParseArguments)
 
 function(debug message_txt)
   message(STATUS "[DEBUG] ${message_txt}")
 endfunction()
 
 
-macro(msg mode)
-  message(${mode} "${PRJ_NAME} ${ARGN}")
-endmacro()
+function(get_version)
+  set(options SHORT)
+  set(oneValueArgs VERSION)
+  set(multiValueArgs)
 
+  cmake_parse_arguments(get_version "${options}" "${oneValueArgs}"
+    "${multiValueArgs}" ${ARGN})
 
-function(get_version version)
-  execute_process(COMMAND git describe --tags --long --always
+  if(get_version_SHORT)
+    set(cmd_arg "--abbrev=0")
+  else()
+    set(cmd_arg "--long")
+  endif()
+
+  execute_process(COMMAND git describe --tags --always ${cmd_arg}
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     OUTPUT_VARIABLE ver
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-  set(${version} "${ver}" PARENT_SCOPE)
+  set(${get_version_VERSION} "${ver}" PARENT_SCOPE)
 endfunction()
 
 
@@ -60,10 +65,10 @@ function(set_policies)
       if(NOT oldval EQUAL newval)
         cmake_policy(SET "${plc}" "${newval}")
 
-        msg(STATUS "policy ${plc}: ${newval}")
+        message(STATUS "policy ${plc}: ${newval}")
       endif()
     else()
-      msg(WARNING "policy ${plc} is not defined")
+      message(WARNING "policy ${plc} is not defined")
     endif()
   endforeach()
 endfunction()

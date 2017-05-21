@@ -6,11 +6,11 @@ macro(handle_llvm_dependency isStandaloneBuild)
     find_package(LLVM REQUIRED CONFIG)
 
     if(NOT LLVM_FOUND)
-      msg(FATAL_ERROR "Could not find LLVM")
+      message(FATAL_ERROR "Could not find LLVM")
     endif()
 
-    msg(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
-    msg(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
+    message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
+    message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
   endif()
 
   if(LLVM_PACKAGE_VERSION VERSION_LESS "3.8.0")

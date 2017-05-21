@@ -17,7 +17,7 @@ include(HandleLLVMDependency)
 option(PRJ_USE_LLVM_INTERNAL_MODULE TRUE)
 option(PRJ_SKIP_TESTS TRUE)
 
-get_version(PRJ_VERSION)
+get_version(VERSION PRJ_VERSION)
 
 set(PRJ_NAME SkeletonOpt)
 
@@ -29,7 +29,7 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
 
   set(PRJ_STANDALONE_BUILD TRUE)
 
-  msg(STATUS "configuring as external LLVM project")
+  message(STATUS "configuring as external LLVM project")
 endif()
 
 
@@ -52,13 +52,13 @@ if(NOT LLVM_ENABLE_RTTI)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
 endif()
 
-msg(STATUS "RTTI support: ${LLVM_ENABLE_RTTI}")
+message(STATUS "RTTI support: ${LLVM_ENABLE_RTTI}")
 
 if(NOT LLVM_ENABLE_EH)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-exceptions")
 endif()
 
-msg(STATUS "EH support: ${LLVM_ENABLE_EH}")
+message(STATUS "EH support: ${LLVM_ENABLE_EH}")
 
 
 # when we are building the project as standalone, we'd like to leave the install
@@ -163,6 +163,11 @@ configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/share/cmake/${PRJ_CMAKE_CONFIG_FILE}.in"
   "${CMAKE_CURRENT_BINARY_DIR}/share/cmake/${PRJ_NAME_LOWER}-${PRJ_CMAKE_CONFIG_FILE}"
   @ONLY)
+
+get_version(SHORT VERSION PRJ_VERSION_SHORT)
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/share/cmake/${PRJ_NAME_LOWER}-config-version.cmake"
+  VERSION ${PRJ_VERSION_SHORT} COMPATIBILITY SameMajorVersion)
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/" 
   DESTINATION ${PRJ_INSTALL_INCLUDE_DIR})
