@@ -2,3 +2,5 @@
 
 include(${CMAKE_CURRENT_LIST_DIR}/@PRJ_NAME@.cmake)
 
+set_target_properties(@LIB_NAME@ PROPERTIES DEPENDEE "@DEPENDEE@")
+

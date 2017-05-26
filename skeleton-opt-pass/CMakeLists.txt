@@ -86,6 +86,17 @@ if(PRJ_STANDALONE_BUILD)
     "${CMAKE_MODULE_LINKER_FLAGS} ${PRJ_LINKER_FLAGS}")
 endif()
 
+
+# dependencies
+
+#find_package(Foo CONFIG)
+
+#if(Foo_FOUND)
+  #get_target_property(FOO_LIB_LOCATION LLVMApplyIOAttributePass LOCATION)
+#else()
+  #message(WARNING "package Foo was not found; skipping.")
+#endif()
+
 #
 
 set(LIB_NAME "LLVM${PRJ_NAME}Pass")
@@ -123,17 +134,22 @@ target_include_directories(${LIB_NAME} PUBLIC
 
 #
 
+get_property(TRGT_PREFIX TARGET ${LIB_NAME} PROPERTY PREFIX)
+get_property(TRGT_SUFFIX TARGET ${LIB_NAME} PROPERTY SUFFIX)
+
+if(NOT TRGT_PREFIX)
+  set(TRGT_PREFIX ${CMAKE_SHARED_MODULE_PREFIX})
+endif()
+
+if(NOT TRGT_SUFFIX)
+  set(TRGT_SUFFIX ${CMAKE_SHARED_MODULE_SUFFIX})
+endif()
+
+#
+
+set(TESTEE_PREFIX ${TRGT_PREFIX})
+set(TESTEE_SUFFIX ${TRGT_SUFFIX})
 set(TESTEE_LIB ${LIB_NAME})
-get_property(TESTEE_PREFIX TARGET ${TESTEE_LIB} PROPERTY PREFIX)
-get_property(TESTEE_SUFFIX TARGET ${TESTEE_LIB} PROPERTY SUFFIX)
-
-if(NOT TESTEE_PREFIX)
-  set(TESTEE_PREFIX ${CMAKE_SHARED_MODULE_PREFIX})
-endif()
-
-if(NOT TESTEE_SUFFIX)
-  set(TESTEE_SUFFIX ${CMAKE_SHARED_MODULE_SUFFIX})
-endif()
 
 add_subdirectory(unittests)
 add_subdirectory(tests)
@@ -148,6 +164,9 @@ attach_compilation_db_command(${LIB_NAME})
 set(PRJ_INSTALL_INCLUDE_DIR "include")
 set(PRJ_INSTALL_SHARE_DIR "share")
 set(PRJ_CMAKE_CONFIG_FILE "config.cmake")
+
+set(DEPENDEE "")
+
 
 if(NOT PRJ_STANDALONE_BUILD)
   set(PRJ_INSTALL_INCLUDE_DIR ${PRJ_NAME}${PRJ_INSTALL_INCLUDE_DIR})
