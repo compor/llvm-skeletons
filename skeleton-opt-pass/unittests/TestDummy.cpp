@@ -64,17 +64,17 @@ struct test_result_visitor : public boost::static_visitor<unsigned int> {
 
 class TestDummy : public testing::Test {
 public:
-  enum struct AssembyHolderType : int { FILE_TYPE, STRING_TYPE };
+  enum struct AssemblyHolderType : int { FILE_TYPE, STRING_TYPE };
 
 
   TestDummy() : m_Module{nullptr}, m_TestDataDir{"./unittests/data/"} {}
 
   void ParseAssembly(
       const char *AssemblyHolder,
-      const AssembyHolderType asmHolder = AssembyHolderType::FILE_TYPE) {
+      const AssemblyHolderType asmHolder = AssemblyHolderType::FILE_TYPE) {
     llvm::SMDiagnostic err;
 
-    if (AssembyHolderType::FILE_TYPE == asmHolder) {
+    if (AssemblyHolderType::FILE_TYPE == asmHolder) {
     std::string fullFilename{m_TestDataDir};
       fullFilename += AssemblyHolder;
 
