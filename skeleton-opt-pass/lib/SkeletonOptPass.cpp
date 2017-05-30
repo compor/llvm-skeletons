@@ -2,8 +2,6 @@
 //
 //
 
-#define DEBUG_TYPE "skeletonoptpass"
-
 #include "llvm/Pass.h"
 // using llvm::RegisterPass
 
@@ -35,6 +33,13 @@
 
 #include "SkeletonOptPass.hpp"
 
+#define DEBUG_TYPE "skeletonoptpass"
+
+#define STRINGIFY_UTIL(x) #x
+#define STRINGIFY(x) STRINGIFY_UTIL(x)
+
+#define PRJ_CMDLINE_DESC(x) x " (version: " STRINGIFY(VERSION_STRING) ")"
+
 #ifndef NDEBUG
 #define PLUGIN_OUT llvm::outs()
 //#define PLUGIN_OUT llvm::nulls()
@@ -54,8 +59,8 @@
 // plugin registration for opt
 
 char SkeletonOptPass::ID = 0;
-static llvm::RegisterPass<SkeletonOptPass> X("skeleton-opt-pass",
-                                             "skeleton pass", false, false);
+static llvm::RegisterPass<SkeletonOptPass>
+    X("skeleton-opt-pass", PRJ_CMDLINE_DESC("skeleton pass"), false, false);
 
 // plugin registration for clang
 
