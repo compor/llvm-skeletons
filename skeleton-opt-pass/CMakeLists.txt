@@ -20,6 +20,7 @@ option(PRJ_SKIP_TESTS TRUE)
 get_version(VERSION PRJ_VERSION)
 
 set(PRJ_NAME SkeletonOpt)
+string(TOUPPER ${PRJ_NAME} PRJ_NAME_UPPER)
 
 # part of LLVM or standalone
 set(PRJ_STANDALONE_BUILD FALSE)
@@ -92,8 +93,9 @@ endif()
 #find_package(Foo CONFIG)
 
 #if(Foo_FOUND)
-  #get_target_property(FOO_LIB_LOCATION LLVMApplyIOAttributePass LOCATION)
+  set(${PRJ_NAME_UPPER}_USES_FOO 1)
 #else()
+  set(${PRJ_NAME_UPPER}_USES_FOO 0)
   #message(WARNING "package Foo was not found; skipping.")
 #endif()
 
@@ -123,16 +125,20 @@ endif()
 #llvm_map_components_to_libnames(llvm_libs core support analysis ipo passes)
 #target_link_libraries(${LIB_NAME} PUBLIC ${llvm_libs})
 
+if(Foo_FOUND)
+  target_link_libraries(${LIB_NAME} PUBLIC Foo)
+endif()
+
 target_compile_definitions(${LIB_NAME} PUBLIC ${LLVM_DEFINITIONS})
 target_compile_definitions(${LIB_NAME} PRIVATE VERSION_STRING=${PRJ_VERSION})
 
 target_include_directories(${LIB_NAME} PUBLIC ${LLVM_INCLUDE_DIRS})
 target_include_directories(${LIB_NAME} PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>)
-target_include_directories(${LIB_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>)
 target_include_directories(${LIB_NAME} PUBLIC
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include>)
+target_include_directories(${LIB_NAME} PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>)
 
 #
 
@@ -170,6 +176,9 @@ set(PRJ_CMAKE_CONFIG_FILE "config.cmake")
 
 set(DEPENDEE "")
 
+if(Foo_FOUND)
+  list(APPEND DEPENDEE ${FOO_LIB_DIR}${TRGT_PREFIX}${FOO_LIB}${TRGT_SUFFIX})
+endif()
 
 if(NOT PRJ_STANDALONE_BUILD)
   set(PRJ_INSTALL_INCLUDE_DIR ${PRJ_NAME}${PRJ_INSTALL_INCLUDE_DIR})
@@ -186,8 +195,7 @@ set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES
 
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/include/${PRJ_CONFIG_HEADER_FILE}.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/include/${PRJ_CONFIG_HEADER_FILE}"
-  @ONLY)
+  "${CMAKE_CURRENT_BINARY_DIR}/include/${PRJ_CONFIG_HEADER_FILE}")
 
 string(TOLOWER ${PRJ_NAME} PRJ_NAME_LOWER)
 configure_file(
