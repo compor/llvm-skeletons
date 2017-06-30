@@ -16,6 +16,7 @@ include(HandleLLVMDependency)
 
 option(PRJ_USE_LLVM_INTERNAL_MODULE TRUE)
 option(PRJ_SKIP_TESTS TRUE)
+option(PRJ_DEBUG FALSE)
 
 get_version(VERSION PRJ_VERSION)
 
@@ -93,9 +94,9 @@ endif()
 #find_package(Foo CONFIG)
 
 #if(Foo_FOUND)
-  set(${PRJ_NAME_UPPER}_USES_FOO 1)
+  #set(${PRJ_NAME_UPPER}_USES_FOO 1)
 #else()
-  set(${PRJ_NAME_UPPER}_USES_FOO 0)
+  #set(${PRJ_NAME_UPPER}_USES_FOO 0)
   #message(WARNING "package Foo was not found; skipping.")
 #endif()
 
@@ -133,6 +134,8 @@ target_compile_definitions(${LIB_NAME} PUBLIC ${LLVM_DEFINITIONS})
 target_compile_definitions(${LIB_NAME} PRIVATE VERSION_STRING=${PRJ_VERSION})
 
 target_include_directories(${LIB_NAME} PUBLIC ${LLVM_INCLUDE_DIRS})
+target_include_directories(${LIB_NAME} PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>)
 target_include_directories(${LIB_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>)
 target_include_directories(${LIB_NAME} PUBLIC
