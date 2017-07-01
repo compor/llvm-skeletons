@@ -2,6 +2,12 @@
 //
 //
 
+#include "Config.hpp"
+
+#include "Utils.hpp"
+
+#include "SkeletonOptPass.hpp"
+
 #include "llvm/Pass.h"
 // using llvm::RegisterPass
 
@@ -24,6 +30,11 @@
 // using llvm::PassManagerBuilder
 // using llvm::RegisterStandardPasses
 
+#include "llvm/Support/CommandLine.h"
+// using llvm::cl::opt
+// using llvm::cl::desc
+// using llvm::cl::location
+
 #include "llvm/Support/raw_ostream.h"
 // using llvm::raw_ostream
 
@@ -31,30 +42,12 @@
 // using DEBUG macro
 // using llvm::dbgs
 
-#include "SkeletonOptPass.hpp"
-
 #define DEBUG_TYPE "skeletonoptpass"
 
 #define STRINGIFY_UTIL(x) #x
 #define STRINGIFY(x) STRINGIFY_UTIL(x)
 
 #define PRJ_CMDLINE_DESC(x) x " (version: " STRINGIFY(VERSION_STRING) ")"
-
-#ifndef NDEBUG
-#define PLUGIN_OUT llvm::outs()
-//#define PLUGIN_OUT llvm::nulls()
-
-// convenience macro when building against a NDEBUG LLVM
-#undef DEBUG
-#define DEBUG(X)                                                               \
-  do {                                                                         \
-    X;                                                                         \
-  } while (0);
-#else // NDEBUG
-#define PLUGIN_OUT llvm::dbgs()
-#endif // NDEBUG
-
-#define PLUGIN_ERR llvm::errs()
 
 // plugin registration for opt
 
@@ -80,6 +73,15 @@ static void registerSkeletonOptPass(const llvm::PassManagerBuilder &Builder,
 static llvm::RegisterStandardPasses
     RegisterSkeletonOptPass(llvm::PassManagerBuilder::EP_EarlyAsPossible,
                             registerSkeletonOptPass);
+
+//
+
+#if SKELETONOPTPASS_DEBUG
+bool passDebugFlag = false;
+static llvm::cl::opt<bool, true> Debug("skeleton-debug",
+                                       llvm::cl::desc("debug skeleton pass"),
+                                       llvm::cl::location(passDebugFlag));
+#endif // SKELETONOPTPASS_DEBUG
 
 //
 
