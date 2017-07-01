@@ -8,7 +8,7 @@ A generic skeleton for LLVM's opt tool
 - make sure clang/clang++ is in your `$PATH`
 - `mkdir my-build-dir`
 - optionally `mkdir my-install-dir`
-- `[path to repo]/skeleton-opt-pass/utils/build.sh [path torepo]/skeleton-opt-pass [path to installation dir]`
+- `[path to repo]/utils/build.sh [path torepo] [path to installation dir]`
 - `cd my-build-dir`
 - `make`
 - optionally `make install`
@@ -18,7 +18,7 @@ A generic skeleton for LLVM's opt tool
 ### Using opt
 
 - make sure LLVM's opt is in your `$PATH`
-- `opt -load [path to plugin]/libLLVMSkeletonOptPass.so -skeleton foo.bc -o foo.skeleton.bc`
+- `opt -load [path to plugin]/libLLVMSkeletonOptPass.so -skeleton foo.bc -o foo.out.bc`
 
 ### Using clang
 
