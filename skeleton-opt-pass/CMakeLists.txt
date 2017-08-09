@@ -50,8 +50,6 @@ handle_llvm_dependency(${PRJ_STANDALONE_BUILD})
 
 # project configuration
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
-
 if(NOT LLVM_ENABLE_RTTI)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
 endif()
@@ -127,6 +125,10 @@ endif()
 
 #llvm_map_components_to_libnames(llvm_libs core support analysis ipo passes)
 #target_link_libraries(${LIB_NAME} PUBLIC ${llvm_libs})
+
+set_target_properties(${LIB_NAME} PROPERTIES 
+  CXX_STANDARD 14
+  CXX_STANDARD_REQUIRED ON)
 
 if(Foo_FOUND)
   target_link_libraries(${LIB_NAME} PUBLIC Foo)
