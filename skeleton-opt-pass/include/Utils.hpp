@@ -31,13 +31,13 @@ extern bool passDebugFlag;
 
 #define DEBUG_MSG(STR)                                                         \
   do {                                                                         \
-    if (passDebugFlag)                                                         \
+    if (icsa::passDebugFlag)                                                   \
       llvm::errs() << STR;                                                     \
   } while (false)
 
 #define DEBUG_CMD(C)                                                           \
   do {                                                                         \
-    if (passDebugFlag)                                                         \
+    if (icsa::passDebugFlag)                                                   \
       C;                                                                       \
   } while (false)
 
