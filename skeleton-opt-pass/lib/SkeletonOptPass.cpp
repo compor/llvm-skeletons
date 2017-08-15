@@ -81,6 +81,19 @@ bool passDebugFlag = false;
 static llvm::cl::opt<bool, true> Debug("skeleton-debug",
                                        llvm::cl::desc("debug skeleton pass"),
                                        llvm::cl::location(passDebugFlag));
+
+LogLevel passLogLevel = LogLevel::info;
+static llvm::cl::opt<LogLevel, true> DebugLevel(
+    "skeleton-debug-level",
+    llvm::cl::desc("debug level for skeleton pass"),
+    llvm::cl::location(passLogLevel),
+    llvm::cl::values(
+        clEnumValN(LogLevel::info, "info", "informational messages"),
+        clEnumValN(LogLevel::notice, "notice", "significant conditions"),
+        clEnumValN(LogLevel::warning, "warning", "warning conditions"),
+        clEnumValN(LogLevel::error, "error", "error conditions"),
+        clEnumValN(LogLevel::debug, "debug", "debug messages"), nullptr),
+    llvm::cl::cat(TerracePassOpts));
 #endif // SKELETONOPTPASS_DEBUG
 
 //
