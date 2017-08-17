@@ -131,7 +131,8 @@ endif()
 
 set_target_properties(${LIB_NAME} PROPERTIES 
   CXX_STANDARD 14
-  CXX_STANDARD_REQUIRED ON)
+  CXX_STANDARD_REQUIRED ON
+  CMAKE_CXX_EXTENSIONS OFF)
 
 if(Foo_FOUND)
   target_link_libraries(${LIB_NAME} PUBLIC Foo)
