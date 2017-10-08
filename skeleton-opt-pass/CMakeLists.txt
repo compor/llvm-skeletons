@@ -4,25 +4,21 @@
 
 cmake_minimum_required(VERSION 3.2.0)
 
+enable_testing()
+
 # add project cmake module path
-set(PRJ_CMAKE_MODULE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
-list(APPEND CMAKE_MODULE_PATH ${PRJ_CMAKE_MODULE_DIR})
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
 
 include(CMakePackageConfigHelpers)
 include(Util)
 include(HandleLLVMDependency)
 
-option(PRJ_USE_LLVM_INTERNAL_MODULE "Use LLVM macro for creating module" OFF)
-option(PRJ_SKIP_TESTS "Skip configuring the project tests" OFF)
-option(PRJ_DEBUG "Enable project custom debug output facilities" ON)
+option(SKELETON_SKIP_TESTS "Skip configuring the project tests" ON)
+option(SKELETON_DEBUG "Enable project custom debug output facilities" OFF)
 
-message(STATUS "project debug: ${PRJ_DEBUG}")
+message(STATUS "project debug: ${SKELETON_DEBUG}")
 
-if(PRJ_SKIP_TESTS)
-  enable_testing()
-endif()
-
-get_version(VERSION PRJ_VERSION)
+get_version(SHORT VERSION PRJ_VERSION)
 
 set(PRJ_NAME SkeletonOpt)
 string(TOUPPER ${PRJ_NAME} PRJ_NAME_UPPER)
@@ -35,10 +31,22 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
   project(${PRJ_NAME} C CXX)
 
   set(PRJ_STANDALONE_BUILD TRUE)
+  set(SKELETON_SKIP_TESTS OFF)
+  set(SKELETON_DEBUG ON)
+  set(SKELETON_EXPORT ${PRJ_NAME})
 
   message(STATUS "configuring as external LLVM project")
 endif()
 
+if(NOT SKELETON_EXPORT)
+  message(FATAL_ERROR 
+    "SKELETON_EXPORT must be defined when built as dependent project")
+endif()
+
+file(RELATIVE_PATH PATH_PREFIX ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+if(NOT PATH_PREFIX)
+  set(PATH_PREFIX ".")
+endif()
 
 # CMP0056 is required for any libc++abi dependency of the try_compile() command
 # this bumps required version to 3.2
@@ -108,26 +116,26 @@ endif()
 set(LIB_NAME "LLVM${PRJ_NAME}Pass")
 set(LIB_SOURCES "lib/SkeletonOptPass.cpp")
 
-if(NOT PRJ_USE_LLVM_INTERNAL_MODULE)
+if(PRJ_STANDALONE_BUILD)
   add_library(${LIB_NAME} MODULE ${LIB_SOURCES})
 else()
-  # this follows the suggestion documented in
-  # http://llvm.org/docs/CMake.html#cmake-out-of-source-pass
-  # for allowing future inclusion of the plugin in the LLVM source tree
-  # by using LLVM's internal cmake functions and utilities
-  set(LLVM_RUNTIME_OUTPUT_INTDIR ${CMAKE_BINARY_DIR}/${CMAKE_CFG_INTDIR}/bin)
-  set(LLVM_LIBRARY_OUTPUT_INTDIR ${CMAKE_BINARY_DIR}/${CMAKE_CFG_INTDIR}/lib)
-
   add_llvm_loadable_module(${LIB_NAME} ${LIB_SOURCES})
 endif()
 
 # according to http://llvm.org/docs/CMake.html
 # we do not need the below library dependencies since the plugin will be loaded
 # via opt or clang which already have those libs in their dependencies
-# comment out the following two statements to test against static lib LLVM build
 
-#llvm_map_components_to_libnames(llvm_libs core support analysis ipo passes)
-#target_link_libraries(${LIB_NAME} PUBLIC ${llvm_libs})
+llvm_map_components_to_libnames(llvm_libs core support analysis)
+
+if(llvm_libs)
+  list(GET llvm_libs 0 single_llvm_lib)
+  get_target_property(target_type ${single_llvm_lib} TYPE)
+endif()
+
+if(${target_type} STREQUAL "STATIC_LIBRARY")
+  target_link_libraries(${LIB_NAME} PUBLIC ${llvm_libs})
+endif()
 
 set_target_properties(${LIB_NAME} PROPERTIES 
   CXX_STANDARD 14
@@ -142,17 +150,17 @@ target_compile_definitions(${LIB_NAME} PUBLIC ${LLVM_DEFINITIONS})
 target_compile_definitions(${LIB_NAME} PRIVATE VERSION_STRING=${PRJ_VERSION})
 
 set(PRJ_DEBUG_VALUE 0)
-if(PRJ_DEBUG)
+if(SKELETON_DEBUG)
   set(PRJ_DEBUG_VALUE 1)
 endif()
 
 target_include_directories(${LIB_NAME} PUBLIC ${LLVM_INCLUDE_DIRS})
 target_include_directories(${LIB_NAME} PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>)
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 target_include_directories(${LIB_NAME} PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>)
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>)
 target_include_directories(${LIB_NAME} PUBLIC
-  $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include>)
+  $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${PATH_PREFIX}/include>)
 
 #
 
@@ -178,13 +186,17 @@ add_subdirectory(tests)
 add_subdirectory(doc)
 
 
-attach_compilation_db(TARGET ${LIB_NAME})
+if(PRJ_STANDALONE_BUILD)
+  attach_compilation_db(TARGET ${LIB_NAME})
+endif()
 
 
 # installation
 
-set(PRJ_INSTALL_INCLUDE_DIR "include")
-set(PRJ_INSTALL_SHARE_DIR "share")
+set(CMAKE_INSTALL_MESSAGE "LAZY")
+
+set(PRJ_INSTALL_INCLUDE_DIR "${PATH_PREFIX}/include")
+set(PRJ_INSTALL_SHARE_DIR "${PATH_PREFIX}/share")
 set(PRJ_CONFIG_HEADER_FILE "Config.hpp")
 set(PRJ_CMAKE_CONFIG_FILE "config.cmake")
 set(PRJ_CMAKE_CONFIG_EXTRA_FILE "config-extra.cmake")
@@ -200,9 +212,9 @@ if(NOT PRJ_STANDALONE_BUILD)
   set(PRJ_INSTALL_SHARE_DIR ${PRJ_NAME}${PRJ_INSTALL_SHARE_DIR})
 endif()
 
-if(PRJ_STANDALONE_BUILD)
-  install(TARGETS ${LIB_NAME} EXPORT ${PRJ_NAME} LIBRARY DESTINATION "lib")
-endif()
+install(TARGETS ${LIB_NAME} EXPORT ${SKELETON_EXPORT}
+  ARCHIVE DESTINATION "${PATH_PREFIX}/lib"
+  LIBRARY DESTINATION "${PATH_PREFIX}/lib")
 
 file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include")
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES
@@ -232,8 +244,13 @@ install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/"
   PATTERN "*.in" EXCLUDE)
 install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include/" 
   DESTINATION ${PRJ_INSTALL_INCLUDE_DIR})
-install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/share/"
-  DESTINATION ${PRJ_INSTALL_SHARE_DIR})
 
-install(EXPORT ${PRJ_NAME} DESTINATION "${PRJ_INSTALL_SHARE_DIR}/cmake")
+if(PRJ_STANDALONE_BUILD)
+  install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/share/"
+    DESTINATION ${PRJ_INSTALL_SHARE_DIR})
+endif()
+
+if(PRJ_STANDALONE_BUILD)
+  install(EXPORT ${SKELETON_EXPORT} DESTINATION "${PRJ_INSTALL_SHARE_DIR}/cmake")
+endif()
 

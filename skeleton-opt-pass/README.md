@@ -3,6 +3,11 @@
 
 A generic skeleton for LLVM's opt tool
 
+## External Dependencies
+
+None.
+
+
 ## How to Build
 
 - make sure clang/clang++ is in your `$PATH`
@@ -12,6 +17,7 @@ A generic skeleton for LLVM's opt tool
 - `cd my-build-dir`
 - `make`
 - optionally `make install`
+
 
 ## How to execute
 
@@ -31,8 +37,7 @@ A generic skeleton for LLVM's opt tool
   - LLVM 3.7.0
   - LLVM 3.8.0
 
+
 ## Notes
 
 - When the build script uses LLVM's cmake utility functions the `lib` shared library prefix is omitted
-
-

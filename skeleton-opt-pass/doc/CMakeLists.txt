@@ -1,3 +1,10 @@
+# cmake file
+
+if(PRJ_STANDALONE_BUILD)
+  message(STATUS "doc generation disabled when build as dependent project")
+
+  return()
+endif()
 
 find_package(Doxygen)
 
