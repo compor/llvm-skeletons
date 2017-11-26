@@ -1,6 +1,6 @@
 # cmake file
 
-if(PRJ_STANDALONE_BUILD)
+if(NOT PRJ_STANDALONE_BUILD)
   message(STATUS "doc generation disabled when build as dependent project")
 
   return()

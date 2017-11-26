@@ -1,0 +1,3 @@
+[submodule "skeleton-opt-pass/cmake/cmake-utils"]
+	path = skeleton-opt-pass/cmake/cmake-utils
+	url = https://github.com/compor/cmake-utils.git

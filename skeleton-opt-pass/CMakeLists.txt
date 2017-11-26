@@ -8,10 +8,14 @@ enable_testing()
 
 # add project cmake module path
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
+list(APPEND CMAKE_MODULE_PATH
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake-utils/modules")
 
 include(CMakePackageConfigHelpers)
-include(Util)
 include(HandleLLVMDependency)
+include(cmake-utils)
+
+add_cleanall_target()
 
 option(SKELETON_SKIP_TESTS "Skip configuring the project tests" ON)
 option(SKELETON_DEBUG "Enable project custom debug output facilities" OFF)
@@ -195,8 +199,16 @@ endif()
 
 set(CMAKE_INSTALL_MESSAGE "LAZY")
 
+if(PRJ_STANDALONE_BUILD)
+  set(PRJ_INSTALL_INCLUDE_DIR "include")
+  set(PRJ_INSTALL_LIB_DIR "lib")
+  set(PRJ_INSTALL_SHARE_DIR "share")
+else()
 set(PRJ_INSTALL_INCLUDE_DIR "${PATH_PREFIX}/include")
+  set(PRJ_INSTALL_LIB_DIR "${PATH_PREFIX}/lib")
 set(PRJ_INSTALL_SHARE_DIR "${PATH_PREFIX}/share")
+endif()
+
 set(PRJ_CONFIG_HEADER_FILE "Config.hpp")
 set(PRJ_CMAKE_CONFIG_FILE "config.cmake")
 set(PRJ_CMAKE_CONFIG_EXTRA_FILE "config-extra.cmake")
@@ -213,12 +225,15 @@ if(NOT PRJ_STANDALONE_BUILD)
 endif()
 
 install(TARGETS ${LIB_NAME} EXPORT ${SKELETON_EXPORT}
-  ARCHIVE DESTINATION "${PATH_PREFIX}/lib"
-  LIBRARY DESTINATION "${PATH_PREFIX}/lib")
+  ARCHIVE DESTINATION "${PRJ_INSTALL_LIB_DIR}"
+  LIBRARY DESTINATION "${PRJ_INSTALL_LIB_DIR}")
 
 file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include")
-set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES
+
+add_custom_target(clean_generated_include
+  COMMAND "${CMAKE_COMMAND}" "-E" "remove_directory"
   "${CMAKE_CURRENT_BINARY_DIR}/include")
+add_dependencies(clean_all clean_generated_include)
 
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/include/${PRJ_CONFIG_HEADER_FILE}.in"

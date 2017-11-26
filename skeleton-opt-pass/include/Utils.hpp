@@ -28,8 +28,8 @@ enum class LogLevel { info, notice, warning, error, debug };
 // using std::error_code
 
 namespace icsa {
-extern bool passDebugFlag;
 
+extern bool passDebugFlag;
 extern LogLevel passLogLevel;
 
 } // namespace icsa end
