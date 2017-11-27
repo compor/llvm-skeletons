@@ -7,6 +7,9 @@ export LLVMCONFIG=$(which llvm-config)
 
 export LLVM_DIR=$(${LLVMCONFIG} --prefix)/share/llvm/cmake/
 
+${LLVMCONFIG} --cmakedir &> /dev/null
+[[ $? -eq 0 ]] && export LLVM_DIR=$(${LLVMCONFIG} --cmakedir)
+
 export GTEST_ROOT=/usr/local/gtest-libcxx
 
 export BOOST_ROOT=/bulk/workbench/boost/015900/install/
