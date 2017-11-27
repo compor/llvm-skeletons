@@ -1,5 +1,5 @@
 
-# skeleton-opt-pass - A template pass for `LLVM` opt
+# skeleton-opt-pass - A template pass for LLVM opt
 
 ## Introduction
 
@@ -64,11 +64,11 @@ None.
 
 ## How to execute
 
-### Using `opt`
+### Using opt
 
 `opt -load [path to plugin]/libLLVMSkeletonOptPass.so -skeleton foo.bc -o foo.out.bc`
 
-### Using `clang`
+### Using clang
 
 `clang -Xclang -load -Xclang [path to plugin]/libLLVMSkeletonOptPass.so foo.c -o foo`
    
