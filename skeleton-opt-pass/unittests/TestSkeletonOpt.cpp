@@ -75,7 +75,13 @@ public:
       const AssemblyHolderType asmHolder = AssemblyHolderType::FILE_TYPE) {
     llvm::SMDiagnostic err;
 
+#if (LLVM_VERSION_MAJOR >= 4) ||                                               \
+    (LLVM_VERSION_MAJOR == 3 && LLVM_VERSION_MINOR >= 9)
+    static llvm::LLVMContext theContext;
+    auto &ctx = theContext;
+#else
     auto &ctx = llvm::getGlobalContext();
+#endif
 
     if (AssemblyHolderType::FILE_TYPE == asmHolder) {
       std::string fullFilename{m_TestDataDir};
