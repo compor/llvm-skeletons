@@ -20,6 +20,7 @@ This is a generic template for creating passes using `LLVM` [`opt`][1].
   tested with:
     - 3.7
     - 3.8
+    - 6.0.0 (trunk)
   - [GCC][4]  
   tested with:
     - 5.4.1
