@@ -130,7 +130,7 @@ endif()
 # we do not need the below library dependencies since the plugin will be loaded
 # via opt or clang which already have those libs in their dependencies
 
-llvm_map_components_to_libnames(llvm_libs core support analysis)
+llvm_map_components_to_libnames(llvm_libs core support analysis passes)
 
 if(llvm_libs)
   list(GET llvm_libs 0 single_llvm_lib)
