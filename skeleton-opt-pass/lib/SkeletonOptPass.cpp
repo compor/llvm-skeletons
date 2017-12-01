@@ -34,6 +34,8 @@
 // using llvm::cl::opt
 // using llvm::cl::desc
 // using llvm::cl::location
+// using llvm::cl::cat
+// using llvm::cl::OptionCategory
 
 #include "llvm/Support/raw_ostream.h"
 // using llvm::raw_ostream
@@ -76,16 +78,19 @@ static llvm::RegisterStandardPasses
 
 //
 
+static llvm::cl::OptionCategory
+    SkeletonOptPassCategory("Skeleton Pass", "Options for Skeleton pass");
+
 #if SKELETONOPTPASS_DEBUG
 bool passDebugFlag = false;
 static llvm::cl::opt<bool, true> Debug("skeleton-debug",
                                        llvm::cl::desc("debug skeleton pass"),
-                                       llvm::cl::location(passDebugFlag));
+                                       llvm::cl::location(passDebugFlag),
+                                       llvm::cl::cat(SkeletonOptPassCategory));
 
 LogLevel passLogLevel = LogLevel::info;
 static llvm::cl::opt<LogLevel, true> DebugLevel(
-    "skeleton-debug-level",
-    llvm::cl::desc("debug level for skeleton pass"),
+    "skeleton-debug-level", llvm::cl::desc("debug level for skeleton pass"),
     llvm::cl::location(passLogLevel),
     llvm::cl::values(
         clEnumValN(LogLevel::info, "info", "informational messages"),
@@ -93,7 +98,7 @@ static llvm::cl::opt<LogLevel, true> DebugLevel(
         clEnumValN(LogLevel::warning, "warning", "warning conditions"),
         clEnumValN(LogLevel::error, "error", "error conditions"),
         clEnumValN(LogLevel::debug, "debug", "debug messages"), nullptr),
-    llvm::cl::cat(TerracePassOpts));
+    llvm::cl::cat(SkeletonOptPassCategory));
 #endif // SKELETONOPTPASS_DEBUG
 
 //

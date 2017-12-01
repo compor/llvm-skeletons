@@ -90,4 +90,4 @@ static constexpr bool dumpFunction(const llvm::Function *CurFunc = nullptr) {
 
 #endif // SKELETONOPTPASS_DEBUG
 
-#endif // UTILS_HPP
+#endif // header

@@ -25,4 +25,4 @@ public:
 
 } // namespace unnamed end
 
-#endif // end of innclude guard: SKELETONOPTPASS_HPP
+#endif // header
