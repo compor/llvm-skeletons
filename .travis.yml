@@ -1,0 +1,162 @@
+#
+#
+#
+
+language: c++
+sudo: false
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+      - llvm-toolchain-trusty-5.0
+    packages:
+      - tree
+      - ninja-build
+      - llvm-5.0
+      - llvm-5.0-dev
+      - llvm-5.0-tools
+      - clang-5.0
+      - libc++-dev
+      - libc++abi-dev
+      - clang-format-5.0
+
+env:
+  global:
+    - CMAKE_DIR=${TRAVIS_BUILD_DIR}/deps/cmake
+    - CMAKE_BIN_DIR=${CMAKE_DIR}/bin
+    - GTEST_SRC_DIR=${TRAVIS_BUILD_DIR}/deps/gtest
+    - GTEST_LLVM_DIR=${TRAVIS_BUILD_DIR}/deps/gtest-libcxx
+
+cache:
+  directories:
+    - ${CMAKE_DIR}
+    - ${GTEST_SRC_DIR}
+    - ${GTEST_LLVM_DIR}
+
+matrix:
+  include:
+    - os: linux 
+      env: BUILD_TYPE=DEBUG SKELETON_SKIP_TESTS=ON SKELETON_DEBUG=ON LLVM_VERSION=5.0
+      compiler: clang
+
+install:
+  # setup compiler flags
+  - |
+    if [[ $CXX =~ ^clang++ ]]; then
+      export CXX=clang++-${LLVM_VERSION}
+      export CC=clang-${LLVM_VERSION}
+
+      #DIR=$(dirname $(which $CXX))
+      #LLVMCONFIG=${DIR}/llvm-config-${LLVM_VERSION}
+      LLVMCONFIG=/usr/lib/llvm-5.0/bin/llvm-config
+
+      export LLVMCONFIG
+      echo $LLVMCONFIG
+
+      #export LLVM_DIR=$(${LLVMCONFIG} --prefix)/share/llvm/cmake/
+      export LLVM_DIR=/usr/share/llvm-5.0/cmake/
+
+      ${LLVMCONFIG} --cmakedir &> /dev/null
+      [[ $? -eq 0 ]] && export LLVM_DIR=$(${LLVMCONFIG} --cmakedir)
+
+      echo $LLVM_DIR
+
+      export CXX_FLAGS="-stdlib=libc++"
+
+      export LINKER_FLAGS="-Wl,-L$(${LLVMCONFIG} --libdir)" 
+      export LINKER_FLAGS="${LINKER_FLAGS} -Wl,-rpath=$(${LLVMCONFIG} --libdir)" 
+      export LINKER_FLAGS="${LINKER_FLAGS} -lc++ -lc++abi" 
+
+
+      CMAKE_OPTIONS="-DLLVM_DIR=${LLVM_DIR}"
+      #CMAKE_OPTIONS="${CMAKE_OPTIONS} -DBOOST_ROOT=${BOOST_ROOT}"
+      #CMAKE_OPTIONS="${CMAKE_OPTIONS} -DGTEST_ROOT=${GTEST_ROOT}"
+      CMAKE_OPTIONS="${CMAKE_OPTIONS} -DSKELETON_SKIP_TESTS=${SKELETON_SKIP_TESTS}"
+      CMAKE_OPTIONS="${CMAKE_OPTIONS} -DSKELETON_DEBUG=${SKELETON_DEBUG}"
+
+      export CMAKE_OPTIONS
+    fi
+
+  - |
+    # currently not used
+    if [[ $CXX =~ ^g++ ]]; then
+      export CXX=g++-${GCC_VERSION}
+    fi
+
+  - |
+    $CC --version
+    $CXX --version
+    if [[ ! -z $LLVMCONFIG ]]; then $LLVMCONFIG --version; fi
+
+  # location of all dependencies
+  - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
+  - mkdir -p ${DEPS_DIR} && pushd ${DEPS_DIR}
+
+  # install recent cmake
+  - |
+    if [[ -z "$(ls -A ${CMAKE_DIR})" ]]; then 
+      CMAKE_URL="https://cmake.org/files/v3.8/cmake-3.8.0-Linux-x86_64.tar.gz"
+      mkdir -p ${CMAKE_DIR}
+      travis_retry wget --no-check-certificate --quiet -O - ${CMAKE_URL} | tar --strip-components=1 -xz -C ${CMAKE_DIR}
+    fi
+
+    export PATH=${CMAKE_BIN_DIR}:${PATH}
+  - cmake --version
+
+  # download googletest
+  - |
+    if [[ $SKELETON_SKIP_TESTS == "OFF" && -z "$(ls -A ${GTEST_SRC_DIR})" ]]; then 
+      GTEST_URL="https://github.com/google/googletest/archive/release-1.8.0.tar.gz"
+
+      mkdir -p ${GTEST_SRC_DIR}
+      travis_retry wget --quiet -O - ${GTEST_URL} | tar --strip-components=1 -xz -C ${GTEST_SRC_DIR}
+    fi
+
+  # install googletest built against libc++ with clang/llvm
+  - |
+    if [[ $SKELETON_SKIP_TESTS == "OFF" && $CXX =~ ^clang++ ]]; then
+      if [[ -z "$(ls -A ${GTEST_LLVM_DIR}/lib)" ]]; then 
+        mkdir -p ${GTEST_LLVM_DIR}-build
+
+        pushd ${GTEST_LLVM_DIR}-build
+        ${TRAVIS_BUILD_DIR}/utils/scripts/travis/build-gtest-libcxx.sh ${GTEST_SRC_DIR} ${GTEST_LLVM_DIR}
+        cmake --build . -- -j$(nproc)
+        cmake --build . --target install
+        popd
+      fi
+
+      export GTEST_ROOT=${GTEST_LLVM_DIR}
+      echo $GTEST_ROOT
+    fi
+
+  # install googletest built against libstd++ with g++
+  - |
+    if [[ $SKELETON_SKIP_TESTS == "OFF" && $CXX =~ ^g++ ]]; then
+      if [[ -z "$(ls -A ${GTEST_GCC_DIR}/lib)" ]]; then 
+        mkdir -p ${GTEST_GCC_DIR}-build
+
+        pushd ${GTEST_GCC_DIR}-build
+        cmake ${GTEST_SRC_DIR} -DCMAKE_INSTALL_PREFIX=${GTEST_GCC_DIR}
+        cmake --build . -- -j$(nproc)
+        cmake --build . --target install
+        popd
+      fi
+
+      export GTEST_ROOT=${GTEST_GCC_DIR}
+      echo $GTEST_ROOT
+    fi 
+
+  - popd
+
+
+before_script:
+  - mkdir -p build && cd build
+
+script:
+  - ${TRAVIS_BUILD_DIR}/skeleton-opt-pass/utils/scripts/build/build.sh
+  - cmake --build . -- -j$(nproc)
+  #- cmake --build . --target unittests -- -j$(nproc)
+  #- if [[ $SKELETON_SKIP_TESTS == "OFF" ]]; then ./run_unit_tests.sh; fi
+  - cmake --build . --target install
+
