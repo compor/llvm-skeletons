@@ -9,17 +9,23 @@ addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
+      - llvm-toolchain-precise-3.7
       - llvm-toolchain-trusty-5.0
     packages:
       - tree
       - ninja-build
+      - llvm-3.7
+      - llvm-3.7-dev
+      - llvm-3.7-tools
+      - clang-3.7
+      - clang-format-3.7
       - llvm-5.0
       - llvm-5.0-dev
       - llvm-5.0-tools
       - clang-5.0
+      - clang-format-5.0
       - libc++-dev
       - libc++abi-dev
-      - clang-format-5.0
 
 env:
   global:
@@ -37,6 +43,10 @@ cache:
 matrix:
   include:
     - os: linux 
+      env: BUILD_TYPE=DEBUG SKELETON_SKIP_TESTS=ON SKELETON_DEBUG=ON LLVM_VERSION=3.7
+      compiler: clang
+
+    - os: linux 
       env: BUILD_TYPE=DEBUG SKELETON_SKIP_TESTS=ON SKELETON_DEBUG=ON LLVM_VERSION=5.0
       compiler: clang
 
@@ -47,21 +57,20 @@ install:
       export CXX=clang++-${LLVM_VERSION}
       export CC=clang-${LLVM_VERSION}
 
-      #DIR=$(dirname $(which $CXX))
-      #LLVMCONFIG=${DIR}/llvm-config-${LLVM_VERSION}
-      LLVMCONFIG=/usr/lib/llvm-5.0/bin/llvm-config
+      LLVMCONFIG=/usr/lib/llvm-${LLVM_VERSION}/bin/llvm-config
 
       export LLVMCONFIG
       echo $LLVMCONFIG
 
-      #export LLVM_DIR=$(${LLVMCONFIG} --prefix)/share/llvm/cmake/
-      export LLVM_DIR=/usr/share/llvm-5.0/cmake/
+      export LLVM_DIR=/usr/share/llvm-${LLVM_VERSION}/cmake/
 
       ${LLVMCONFIG} --cmakedir &> /dev/null
       [[ $? -eq 0 ]] && export LLVM_DIR=$(${LLVMCONFIG} --cmakedir)
 
       echo $LLVM_DIR
 
+      # this is just weird
+      # referenced here: https://github.com/rust-lang/rust/issues/22316
       export CXX_FLAGS="-stdlib=libc++ -Doffsetof=__builtin_offsetof"
 
       export LINKER_FLAGS="-Wl,-L$(${LLVMCONFIG} --libdir)" 
