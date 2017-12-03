@@ -191,7 +191,10 @@ before_script:
 script:
   - ${TRAVIS_BUILD_DIR}/skeleton-opt-pass/utils/scripts/build/build.sh
   - cmake --build . -- -j$(nproc)
-  - cmake --build . --target unittests -- -j$(nproc)
-  #- if [[ $SKELETON_SKIP_TESTS == "OFF" ]]; then ./run_unit_tests.sh; fi
+  - |
+    if [[ $SKELETON_SKIP_TESTS == "OFF" ]]; then
+      cmake --build . --target unittests -- -j$(nproc)
+      ./run_unit_tests.sh
+    fi
   - cmake --build . --target install
 
