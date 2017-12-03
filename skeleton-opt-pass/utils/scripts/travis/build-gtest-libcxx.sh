@@ -2,16 +2,7 @@
 
 [[ $TRAVIS == "true" ]] && set -evx
 
-if [[ ! $TRAVIS == "true" ]]; then
-  DIR=$(dirname $(which $CXX))
-  EXT=${CXX##*-}
-  if [[ $CXX == $EXT ]]; then
-    EXT=""
-  else
-    EXT="-${EXT}"
-  fi
-  LLVMCONFIG=${DIR}/llvm-config${EXT}
-fi
+[[ ! $TRAVIS == "true" ]] && [[ -z ${LLVMCONFIG} ]] && echo "LLVMCONFIG is not set" && exit 1
 
 SRC_DIR=$1
 INSTALL_DIR=$2
