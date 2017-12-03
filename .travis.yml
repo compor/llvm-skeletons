@@ -34,15 +34,21 @@ env:
     - CMAKE_BIN_DIR=${CMAKE_DIR}/bin
     - GTEST_SRC_DIR=${TRAVIS_BUILD_DIR}/deps/gtest
     - GTEST_LLVM_DIR=${TRAVIS_BUILD_DIR}/deps/gtest-libcxx
+    - BOOST_DIR=${TRAVIS_BUILD_DIR}/deps/boost-1.59.0
 
 cache:
   directories:
     - ${CMAKE_DIR}
     - ${GTEST_SRC_DIR}
     - ${GTEST_LLVM_DIR}
+    - ${BOOST_DIR}
 
 matrix:
   include:
+    - os: linux 
+      env: BUILD_TYPE=DEBUG SKELETON_SKIP_TESTS=OFF SKELETON_DEBUG=ON LLVM_VERSION=3.7
+      compiler: clang
+
     - os: linux 
       env: BUILD_TYPE=DEBUG SKELETON_SKIP_TESTS=ON SKELETON_DEBUG=ON LLVM_VERSION=3.7
       compiler: clang
@@ -79,8 +85,6 @@ install:
       export LINKER_FLAGS="${LINKER_FLAGS} -lc++ -lc++abi" 
 
       CMAKE_OPTIONS="-DLLVM_DIR=${LLVM_DIR}"
-      #CMAKE_OPTIONS="${CMAKE_OPTIONS} -DBOOST_ROOT=${BOOST_ROOT}"
-      #CMAKE_OPTIONS="${CMAKE_OPTIONS} -DGTEST_ROOT=${GTEST_ROOT}"
       CMAKE_OPTIONS="${CMAKE_OPTIONS} -DSKELETON_SKIP_TESTS=${SKELETON_SKIP_TESTS}"
       CMAKE_OPTIONS="${CMAKE_OPTIONS} -DSKELETON_DEBUG=${SKELETON_DEBUG}"
 
@@ -129,7 +133,7 @@ install:
         mkdir -p ${GTEST_LLVM_DIR}-build
 
         pushd ${GTEST_LLVM_DIR}-build
-        ${TRAVIS_BUILD_DIR}/utils/scripts/travis/build-gtest-libcxx.sh ${GTEST_SRC_DIR} ${GTEST_LLVM_DIR}
+        ${TRAVIS_BUILD_DIR}/skeleton-opt-pass/utils/scripts/travis/build-gtest-libcxx.sh ${GTEST_SRC_DIR} ${GTEST_LLVM_DIR}
         cmake --build . -- -j$(nproc)
         cmake --build . --target install
         popd
@@ -137,6 +141,9 @@ install:
 
       export GTEST_ROOT=${GTEST_LLVM_DIR}
       echo $GTEST_ROOT
+
+      CMAKE_OPTIONS="${CMAKE_OPTIONS} -DGTEST_ROOT=${GTEST_ROOT}"
+      export CMAKE_OPTIONS
     fi
 
   # install googletest built against libstd++ with g++
@@ -154,7 +161,26 @@ install:
 
       export GTEST_ROOT=${GTEST_GCC_DIR}
       echo $GTEST_ROOT
+
+      CMAKE_OPTIONS="${CMAKE_OPTIONS} -DGTEST_ROOT=${GTEST_ROOT}"
+      export CMAKE_OPTIONS
     fi 
+
+  # install boost headers
+  - |
+    if [[ $SKELETON_SKIP_TESTS == "OFF" ]]; then
+      if [[ -z "$(ls -A ${BOOST_DIR})" ]]; then
+        BOOST_URL="http://sourceforge.net/projects/boost/files/boost/1.59.0/boost_1_59_0.tar.gz"
+        mkdir -p ${BOOST_DIR}
+        { travis_retry wget -O - ${BOOST_URL} | tar --strip-components=1 -xz -C ${BOOST_DIR}; } || exit 1
+      fi
+
+      BOOST_ROOT=${BOOST_DIR}
+      echo ${BOOST_ROOT}
+
+      CMAKE_OPTIONS="${CMAKE_OPTIONS} -DBOOST_ROOT=${BOOST_ROOT}"
+      export CMAKE_OPTIONS
+    fi
 
   - popd
 
@@ -165,7 +191,7 @@ before_script:
 script:
   - ${TRAVIS_BUILD_DIR}/skeleton-opt-pass/utils/scripts/build/build.sh
   - cmake --build . -- -j$(nproc)
-  #- cmake --build . --target unittests -- -j$(nproc)
+  - cmake --build . --target unittests -- -j$(nproc)
   #- if [[ $SKELETON_SKIP_TESTS == "OFF" ]]; then ./run_unit_tests.sh; fi
   - cmake --build . --target install
 
