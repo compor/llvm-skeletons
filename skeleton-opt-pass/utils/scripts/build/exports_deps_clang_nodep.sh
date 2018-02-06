@@ -5,8 +5,10 @@ export CXX=clang++
 
 export LLVMCONFIG=$(which llvm-config)
 
-export LLVM_DIR=$(${LLVMCONFIG} --cmakedir &> /dev/null)
-[[ -z ${LLVM_DIR} ]] && export LLVM_DIR=$(${LLVMCONFIG} --prefix)/share/llvm/cmake/
+export LLVM_DIR=$(${LLVMCONFIG} --prefix)/share/llvm/cmake/
+
+${LLVMCONFIG} --cmakedir &> /dev/null
+[[ $? -eq 0 ]] && export LLVM_DIR=$(${LLVMCONFIG} --cmakedir)
 
 export GTEST_ROOT=/usr/local/gtest-libcxx
 
