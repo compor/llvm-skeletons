@@ -23,7 +23,7 @@ config.substitutions.append(('%bindir', "@CMAKE_BINARY_DIR@"))
 config.substitutions.append(('%inputdatadir', "%p/data/input"))
 config.substitutions.append(('%outputdatadir', "%p/data/output"))
 config.substitutions.append(('%testeelib',
-                             "@TESTEE_PREFIX@@TESTEE_LIB@@TESTEE_SUFFIX@"))
+                             "@TESTEE_PREFIX@@LIT_TESTEE_LIB@@TESTEE_SUFFIX@"))
 
 # environment: Set PATH as required
 config.environment['PATH'] = os.pathsep.join(["@LLVM_TOOLS_BINARY_DIR@",

@@ -167,20 +167,20 @@ install:
     fi 
 
   # install boost headers
-  - |
-    if [[ $SKELETON_SKIP_TESTS == "OFF" ]]; then
-      if [[ -z "$(ls -A ${BOOST_DIR})" ]]; then
-        BOOST_URL="http://sourceforge.net/projects/boost/files/boost/1.59.0/boost_1_59_0.tar.gz"
-        mkdir -p ${BOOST_DIR}
-        { travis_retry wget -O - ${BOOST_URL} | tar --strip-components=1 -xz -C ${BOOST_DIR}; } || exit 1
-      fi
+  #- |
+    #if [[ $SKELETON_SKIP_TESTS == "OFF" ]]; then
+      #if [[ -z "$(ls -A ${BOOST_DIR})" ]]; then
+        #BOOST_URL="http://sourceforge.net/projects/boost/files/boost/1.59.0/boost_1_59_0.tar.gz"
+        #mkdir -p ${BOOST_DIR}
+        #{ travis_retry wget -O - ${BOOST_URL} | tar --strip-components=1 -xz -C ${BOOST_DIR}; } || exit 1
+      #fi
 
-      BOOST_ROOT=${BOOST_DIR}
-      echo ${BOOST_ROOT}
+      #BOOST_ROOT=${BOOST_DIR}
+      #echo ${BOOST_ROOT}
 
-      CMAKE_OPTIONS="${CMAKE_OPTIONS} -DBOOST_ROOT=${BOOST_ROOT}"
-      export CMAKE_OPTIONS
-    fi
+      #CMAKE_OPTIONS="${CMAKE_OPTIONS} -DBOOST_ROOT=${BOOST_ROOT}"
+      #export CMAKE_OPTIONS
+    #fi
 
   - popd
 
@@ -194,7 +194,7 @@ script:
   - |
     if [[ $SKELETON_SKIP_TESTS == "OFF" ]]; then
       cmake --build . --target unittests -- -j$(nproc)
-      ./run_unit_tests.sh
+      LD_LIBRARY_PATH=$(llvm-config --libdir) ./unittests/TestSkeletonOpt
     fi
   - cmake --build . --target install
 

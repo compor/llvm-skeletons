@@ -27,26 +27,31 @@ enum class LogLevel { info, notice, warning, error, debug };
 #include <system_error>
 // using std::error_code
 
-namespace icsa {
+namespace skeleton {
+namespace utility {
 
 extern bool passDebugFlag;
 extern LogLevel passLogLevel;
 
-} // namespace icsa end
+} // namespace utility end
+} // namespace skeleton end
 
 #define DEBUG_MSG(L, STR)                                                      \
   do {                                                                         \
-    if (icsa::passDebugFlag && L <= icsa::passLogLevel)                        \
+    if (skeleton::utility::passDebugFlag &&                                    \
+        L <= skeleton::utility::passLogLevel)                                  \
       llvm::errs() << STR;                                                     \
   } while (false)
 
 #define DEBUG_CMD(L, C)                                                        \
   do {                                                                         \
-    if (icsa::passDebugFlag && L <= icsa::passLogLevel)                        \
+    if (skeleton::utility::passDebugFlag &&                                    \
+        L <= skeleton::utility::passLogLevel)                                  \
       C;                                                                       \
   } while (false)
 
-namespace icsa {
+namespace skeleton {
+namespace utility {
 
 static bool dumpFunction(const llvm::Function *CurFunc = nullptr) {
   if (!CurFunc)
@@ -64,7 +69,8 @@ static bool dumpFunction(const llvm::Function *CurFunc = nullptr) {
   return false;
 }
 
-} // namespace icsa end
+} // namespace utility end
+} // namespace skeleton end
 
 #else
 
@@ -80,13 +86,15 @@ namespace llvm {
 class Function;
 } // namespace llvm end
 
-namespace icsa {
+namespace skeleton {
+namespace utility {
 
 static constexpr bool dumpFunction(const llvm::Function *CurFunc = nullptr) {
   return true;
 }
 
-} // namespace icsa end
+} // namespace utility end
+} // namespace skeleton end
 
 #endif // SKELETONOPTPASS_DEBUG
 

@@ -12,7 +12,7 @@ namespace llvm {
 class Function;
 } // namespace llvm end
 
-namespace {
+namespace skeleton {
 
 class SkeletonOptPass : public llvm::FunctionPass {
 public:
@@ -23,6 +23,6 @@ public:
   bool runOnFunction(llvm::Function &f) override;
 };
 
-} // namespace unnamed end
+} // namespace skeleton end
 
 #endif // header

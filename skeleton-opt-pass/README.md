@@ -24,7 +24,6 @@ This is a generic template for creating passes using `LLVM` [`opt`][1].
   - [GCC][4]  
   tested with:
     - 5.4.1
-- [boost][5]  
   tested with:
   - 1.59
 - [googletest][6]  
@@ -120,7 +119,6 @@ When the build script uses `LLVM` `cmake` [utility][8] functions the `lib` share
 [2]: https://cmake.org
 [3]: http://www.llvm.org
 [4]: https://gcc.gnu.org
-[5]: http://www.boost.org
 [6]: https://github.com/google/googletest
 [7]: https://llvm.org/docs/CommandGuide/lit.html
 [8]: http://llvm.org/docs/CMake.html#cmake-out-of-source-pass

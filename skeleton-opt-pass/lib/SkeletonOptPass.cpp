@@ -44,7 +44,7 @@
 // using DEBUG macro
 // using llvm::dbgs
 
-#define DEBUG_TYPE "skeletonoptpass"
+#define DEBUG_TYPE "skeletonopt"
 
 #define STRINGIFY_UTIL(x) #x
 #define STRINGIFY(x) STRINGIFY_UTIL(x)
@@ -53,8 +53,8 @@
 
 // plugin registration for opt
 
-char SkeletonOptPass::ID = 0;
-static llvm::RegisterPass<SkeletonOptPass>
+char skeleton::SkeletonOptPass::ID = 0;
+static llvm::RegisterPass<skeleton::SkeletonOptPass>
     X("skeleton-opt-pass", PRJ_CMDLINE_DESC("skeleton pass"), false, false);
 
 // plugin registration for clang
@@ -67,7 +67,7 @@ static llvm::RegisterPass<SkeletonOptPass>
 
 static void registerSkeletonOptPass(const llvm::PassManagerBuilder &Builder,
                                     llvm::legacy::PassManagerBase &PM) {
-  PM.add(new SkeletonOptPass());
+  PM.add(new skeleton::SkeletonOptPass());
 
   return;
 }
@@ -103,40 +103,25 @@ static llvm::cl::opt<LogLevel, true> DebugLevel(
 
 //
 
-namespace {
+namespace skeleton {
 
 bool SkeletonOptPass::runOnFunction(llvm::Function &f) {
-  // DEBUG(PLUGIN_OUT << "skeleton pass : ");
-  // DEBUG(PLUGIN_OUT << " function name : ");
-  // DEBUG(PLUGIN_OUT.write_escaped(f.getName()));
   auto ret_type = f.getReturnType();
-  // DEBUG(PLUGIN_OUT << "\twith ret type : ");
-  // DEBUG(ret_type->print(PLUGIN_OUT));
-
-  // DEBUG(PLUGIN_OUT << "\n---\n");
 
   for (auto bi = f.begin(); f.end() != bi; ++bi)
     for (auto ii = bi->begin(); bi->end() != ii; ++ii) {
-      // DEBUG(PLUGIN_OUT << "users of : " << *ii << "\n");
       for (auto user : ii->users()) {
         // TODO what about other users?
         if (auto user_inst = llvm::dyn_cast<llvm::Instruction>(user))
-          ; // DEBUG(PLUGIN_OUT << "\t" << *user_inst << "\n\n");
+          ;
       }
-
-      // DEBUG(PLUGIN_OUT << "\twhich uses:\n");
 
       for (auto &use : ii->operands()) {
         auto v = use.get();
-        // DEBUG(PLUGIN_OUT << "\t");
-        // DEBUG(v->print(PLUGIN_OUT));
-        // DEBUG(PLUGIN_OUT << "\n");
       }
-
-      // DEBUG(PLUGIN_OUT << "\n---\n");
     }
 
   return false;
 }
 
-} // namespace unnamed end
+} // namespace skeleton end
