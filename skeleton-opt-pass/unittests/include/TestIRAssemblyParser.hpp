@@ -44,7 +44,7 @@ public:
       : m_Module{nullptr}, m_TestDataDir{dataDir} {
 #if (LLVM_VERSION_MAJOR >= 4) ||                                               \
     (LLVM_VERSION_MAJOR == 3 && LLVM_VERSION_MINOR >= 9)
-    llvm::Context theContext;
+    llvm::LLVMContext theContext;
     m_Context = &theContext;
 #else
     m_Context = &(llvm::getGlobalContext());
