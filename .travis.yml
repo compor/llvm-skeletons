@@ -191,10 +191,10 @@ before_script:
 script:
   - ${TRAVIS_BUILD_DIR}/skeleton-opt-pass/utils/scripts/build/build.sh
   - cmake --build . -- -j$(nproc)
-  - |
-    if [[ $SKELETON_SKIP_TESTS == "OFF" ]]; then
-      cmake --build . --target unittests -- -j$(nproc)
-      LD_LIBRARY_PATH=$(llvm-config --libdir) ./unittests/TestSkeletonOpt
-    fi
+  #- |
+    #if [[ $SKELETON_SKIP_TESTS == "OFF" ]]; then
+      #cmake --build . --target unittests -- -j$(nproc)
+      #LD_LIBRARY_PATH=$(llvm-config --libdir) ./unittests/TestSkeletonOpt
+    #fi
   - cmake --build . --target install
 
