@@ -12,6 +12,7 @@ list(APPEND CMAKE_MODULE_PATH
 include(CMakePackageConfigHelpers)
 include(HandleLLVMDependency)
 include(cmake-utils)
+include(DetectLLVMSharedMode)
 
 add_cleanall_target()
 
@@ -62,6 +63,25 @@ handle_llvm_dependency(${PRJ_STANDALONE_BUILD})
 
 
 # project configuration
+
+set(PRJ_SHARED_MODE "STATIC")
+
+if(NOT DEFINED BUILD_SHARED_LIBS)
+  detect_llvm_shared_mode(SHARED_MODE shared_mode LLVM_VERSION ${LLVM_VERSION})
+  string(TOUPPER ${shared_mode} shared_mode)
+
+  message(STATUS "LLVM shared mode: ${shared_mode}")
+
+  if(NOT ${PRJ_SHARED_MODE} STREQUAL ${shared_mode})
+    set(PRJ_SHARED_MODE "MODULE")
+  endif()
+else()
+  if(BUILD_SHARED_LIBS)
+    set(PRJ_SHARED_MODE "MODULE")
+  endif()
+endif()
+
+message(STATUS "Plugin shared mode: ${PRJ_SHARED_MODE}")
 
 if(NOT LLVM_ENABLE_RTTI)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
@@ -150,7 +170,7 @@ target_include_directories(${OBJ_LIB_NAME} PUBLIC
 
 #
 
-add_library(${LIB_NAME} MODULE $<TARGET_OBJECTS:${OBJ_LIB_NAME}>)
+add_library(${LIB_NAME} ${PRJ_SHARED_MODE} $<TARGET_OBJECTS:${OBJ_LIB_NAME}>)
 add_library(${TEST_LIB_NAME} STATIC $<TARGET_OBJECTS:${OBJ_LIB_NAME}>)
 
 # according to http://llvm.org/docs/CMake.html
