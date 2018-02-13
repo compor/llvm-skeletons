@@ -84,7 +84,7 @@ protected:
   llvm::SMDiagnostic m_Diagnostic;
 };
 
-} // unnamed namespace end
 } // namespace testing end
+} // namespace skeleton end
 
 #endif // header

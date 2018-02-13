@@ -20,7 +20,7 @@ public:
 
   SkeletonOptPass() : llvm::FunctionPass(ID) {}
 
-  bool runOnFunction(llvm::Function &f) override;
+  bool runOnFunction(llvm::Function &CurFunc) override;
 };
 
 } // namespace skeleton end

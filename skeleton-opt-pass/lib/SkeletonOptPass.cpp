@@ -105,20 +105,17 @@ static llvm::cl::opt<LogLevel, true> DebugLevel(
 
 namespace skeleton {
 
-bool SkeletonOptPass::runOnFunction(llvm::Function &f) {
-  auto ret_type = f.getReturnType();
+bool SkeletonOptPass::runOnFunction(llvm::Function &CurFunc) {
+  auto ret_type = CurFunc.getReturnType();
 
-  for (auto bi = f.begin(); f.end() != bi; ++bi)
+  for (auto bi = CurFunc.begin(); CurFunc.end() != bi; ++bi)
     for (auto ii = bi->begin(); bi->end() != ii; ++ii) {
-      for (auto user : ii->users()) {
-        // TODO what about other users?
+      for (auto user : ii->users())
         if (auto user_inst = llvm::dyn_cast<llvm::Instruction>(user))
           ;
-      }
 
-      for (auto &use : ii->operands()) {
+      for (auto &use : ii->operands())
         auto v = use.get();
-      }
     }
 
   return false;
