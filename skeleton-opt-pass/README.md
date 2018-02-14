@@ -18,9 +18,10 @@ This is a generic template for creating passes using `LLVM` [`opt`][1].
 - C++ compilers:
   - [LLVM][3]  
   tested with:
-    - 3.7
-    - 3.8
-    - 6.0.0 (trunk)
+    - 3.7.x
+    - 3.8.x
+    - 6.0.0
+    - 7.0.0 (trunk)
   - [GCC][4]  
   tested with:
     - 5.4.1
