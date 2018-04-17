@@ -49,7 +49,7 @@ std::ostream &operator<<(std::ostream &os, const ExampleTestData &td) {
   return os << delim << "assembly file: " << td.assemblyFile << delim;
 }
 
-} // namespace testing end
-} // namespace skeleton end
+} // namespace testing
+} // namespace skeleton
 
 #endif // header

@@ -4,76 +4,65 @@
 
 cmake_minimum_required(VERSION 3.2.0)
 
-# add project cmake module path
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
 list(APPEND CMAKE_MODULE_PATH
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake-utils/general"
   "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake-utils/modules")
 
+include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 include(HandleLLVMDependency)
-include(cmake-utils)
+include(AddCleanAllTarget)
+include(AttachCompilationDB)
 include(DetectLLVMSharedMode)
+include(GetGitVersion)
 
-add_cleanall_target()
+add_clean_all_target()
 
 option(SKELETON_SKIP_TESTS "Skip configuring the project tests" ON)
 option(SKELETON_DEBUG "Enable project custom debug output facilities" OFF)
 
 message(STATUS "project debug: ${SKELETON_DEBUG}")
 
-get_version(SHORT VERSION PRJ_VERSION)
+set(PRJ_DEBUG_VALUE 0)
+if(SKELETON_DEBUG)
+  set(PRJ_DEBUG_VALUE 1)
+endif()
+
+get_git_version(SHORT VERSION PRJ_VERSION)
+set(PRJ_VERSION_SHORT ${PRJ_VERSION})
 
 set(PRJ_NAME SkeletonOpt)
 string(TOUPPER ${PRJ_NAME} PRJ_NAME_UPPER)
 string(TOLOWER ${PRJ_NAME} PRJ_NAME_LOWER)
 
-# part of LLVM or standalone
-set(PRJ_STANDALONE_BUILD FALSE)
+project(${PRJ_NAME} C CXX)
 
-if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-  project(${PRJ_NAME} C CXX)
-
-  set(PRJ_STANDALONE_BUILD TRUE)
-  set(SKELETON_SKIP_TESTS OFF)
-  set(SKELETON_DEBUG ON)
-  set(SKELETON_EXPORT ${PRJ_NAME})
-
-  message(STATUS "configuring as external LLVM project")
-endif()
-
-if(NOT SKELETON_EXPORT)
-  message(FATAL_ERROR 
-    "SKELETON_EXPORT must be defined when built as dependent project")
-endif()
-
-file(RELATIVE_PATH PATH_PREFIX ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
-if(NOT PATH_PREFIX)
-  set(PATH_PREFIX ".")
-endif()
+set(SKELETON_SKIP_TESTS OFF)
+set(SKELETON_DEBUG ON)
+set(SKELETON_EXPORT ${PRJ_NAME})
 
 # CMP0056 is required for any libc++abi dependency of the try_compile() command
-# this bumps required version to 3.2
-# otherwise LD_LIBRARY_DIR needs to be set
-set_policies(CMP0056 NEW)
+# this bumps required version to 3.2 otherwise LD_LIBRARY_DIR needs to be set
+cmake_policy(SET CMP0056 NEW)
 
 
 # requirements
 
-handle_llvm_dependency(${PRJ_STANDALONE_BUILD})
+handle_llvm_dependency(STANDALONE)
 
+detect_llvm_shared_mode(
+  SHARED_MODE LLVM_SHARED_MODE
+  LLVM_VERSION ${LLVM_PACKAGE_VERSION})
+
+string(TOUPPER ${LLVM_SHARED_MODE} LLVM_SHARED_MODE)
+message(STATUS "LLVM shared mode: ${LLVM_SHARED_MODE}")
 
 # project configuration
 
 set(PRJ_SHARED_MODE "STATIC")
 
 if(NOT DEFINED BUILD_SHARED_LIBS)
-  detect_llvm_shared_mode(SHARED_MODE shared_mode 
-    LLVM_VERSION ${LLVM_PACKAGE_VERSION})
-  string(TOUPPER ${shared_mode} shared_mode)
-
-  message(STATUS "LLVM shared mode: ${shared_mode}")
-
-  if(NOT ${PRJ_SHARED_MODE} STREQUAL ${shared_mode})
+  if(NOT ${PRJ_SHARED_MODE} STREQUAL ${LLVM_SHARED_MODE})
     set(PRJ_SHARED_MODE "MODULE")
   endif()
 else()
@@ -101,26 +90,25 @@ message(STATUS "EH support: ${LLVM_ENABLE_EH}")
 # RPATH empty so that potentially we can dynamically link against other
 # installed LLVM toolchains
 
-if(PRJ_STANDALONE_BUILD)
-  set(CMAKE_SKIP_BUILD_RPATH FALSE)
-  set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
-  #set(CMAKE_INSTALL_RPATH ${LLVM_LIBRARY_DIRS})
+set(CMAKE_SKIP_BUILD_RPATH FALSE)
+set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+#set(CMAKE_INSTALL_RPATH ${LLVM_LIBRARY_DIRS})
 
-  if(CMAKE_VERSION VERSION_EQUAL "3.8.0" OR CMAKE_VERSION VERSION_GREATER "3.8.0")
-    set(CMAKE_BUILD_RPATH ${LLVM_LIBRARY_DIRS})
-  else()
-    # unfortunately this also sets the install RPATH for older cmake versions
-    #set(PRJ_LINKER_FLAGS "${PRJ_LINKER_FLAGS} -Wl,-rpath ${LLVM_LIBRARY_DIRS}")
-  endif()
-
-  set(PRJ_LINKER_FLAGS "${PRJ_LINKER_FLAGS} -Wl,--disable-new-dtags")
-
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${PRJ_LINKER_FLAGS}")
-  set(CMAKE_SHARED_LINKER_FLAGS 
-    "${CMAKE_SHARED_LINKER_FLAGS} ${PRJ_LINKER_FLAGS}")
-  set(CMAKE_MODULE_LINKER_FLAGS 
-    "${CMAKE_MODULE_LINKER_FLAGS} ${PRJ_LINKER_FLAGS}")
+if(CMAKE_VERSION VERSION_EQUAL "3.8.0"
+    OR CMAKE_VERSION VERSION_GREATER "3.8.0")
+  set(CMAKE_BUILD_RPATH ${LLVM_LIBRARY_DIRS})
+else()
+  # unfortunately this also sets the install RPATH for older cmake versions
+  #set(PRJ_LINKER_FLAGS "${PRJ_LINKER_FLAGS} -Wl,-rpath ${LLVM_LIBRARY_DIRS}")
 endif()
+
+set(PRJ_LINKER_FLAGS "${PRJ_LINKER_FLAGS} -Wl,--disable-new-dtags")
+
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${PRJ_LINKER_FLAGS}")
+set(CMAKE_SHARED_LINKER_FLAGS
+  "${CMAKE_SHARED_LINKER_FLAGS} ${PRJ_LINKER_FLAGS}")
+set(CMAKE_MODULE_LINKER_FLAGS
+  "${CMAKE_MODULE_LINKER_FLAGS} ${PRJ_LINKER_FLAGS}")
 
 
 # dependencies
@@ -142,51 +130,52 @@ set(LIB_NAME "LLVM${PRJ_NAME}Pass")
 set(OBJ_LIB_NAME "${LIB_NAME}_obj")
 set(TEST_LIB_NAME "${LIB_NAME}_test")
 
+list(APPEND PRJ_LIB_NAMES ${OBJ_LIB_NAME} ${LIB_NAME} ${TEST_LIB_NAME})
+
 add_library(${OBJ_LIB_NAME} OBJECT ${LIB_SOURCES})
+add_library(${LIB_NAME} ${PRJ_SHARED_MODE} $<TARGET_OBJECTS:${OBJ_LIB_NAME}>)
+add_library(${TEST_LIB_NAME} STATIC $<TARGET_OBJECTS:${OBJ_LIB_NAME}>)
 
-set_target_properties(${OBJ_LIB_NAME} PROPERTIES 
-  CXX_STANDARD 14
-  CXX_STANDARD_REQUIRED ON
-  CXX_EXTENSIONS OFF)
+# workaround for cmake's current inability to transitively provide requirements
+# from an object library to its users
+foreach(PRJ_LIB ${PRJ_LIB_NAMES})
+  set_target_properties(${PRJ_LIB} PROPERTIES
+    CXX_STANDARD 14
+    CXX_STANDARD_REQUIRED ON
+    CXX_EXTENSIONS OFF)
 
-if(Foo_FOUND)
-  target_link_libraries(${OBJ_LIB_NAME} PUBLIC Foo)
-endif()
+  target_compile_definitions(${PRJ_LIB} PUBLIC ${LLVM_DEFINITIONS})
+  target_compile_definitions(${PRJ_LIB}
+    PRIVATE VERSION_STRING=${PRJ_VERSION})
 
-target_compile_definitions(${OBJ_LIB_NAME} PUBLIC ${LLVM_DEFINITIONS})
-target_compile_definitions(${OBJ_LIB_NAME} PRIVATE VERSION_STRING=${PRJ_VERSION})
+  if(Foo_FOUND)
+    target_link_libraries(${PRJ_LIB} PUBLIC Foo)
+  endif()
 
-set(PRJ_DEBUG_VALUE 0)
-if(SKELETON_DEBUG)
-  set(PRJ_DEBUG_VALUE 1)
-endif()
+  target_include_directories(${PRJ_LIB} PUBLIC ${LLVM_INCLUDE_DIRS})
+  target_include_directories(${PRJ_LIB} PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+  target_include_directories(${PRJ_LIB} PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>)
+  target_include_directories(${PRJ_LIB} PUBLIC
+    $<INSTALL_INTERFACE:include>)
+endforeach()
 
-target_include_directories(${OBJ_LIB_NAME} PUBLIC ${LLVM_INCLUDE_DIRS})
-target_include_directories(${OBJ_LIB_NAME} PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
-target_include_directories(${OBJ_LIB_NAME} PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>)
+# workaround for OBJECT libraries since they are not first class citizens
+# should be able to use target_link_libraries() against an INTERFACE library
 target_include_directories(${OBJ_LIB_NAME} PUBLIC
   $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${PATH_PREFIX}/include>)
 
-#
-
-add_library(${LIB_NAME} ${PRJ_SHARED_MODE} $<TARGET_OBJECTS:${OBJ_LIB_NAME}>)
-add_library(${TEST_LIB_NAME} STATIC $<TARGET_OBJECTS:${OBJ_LIB_NAME}>)
 
 # according to http://llvm.org/docs/CMake.html
 # we do not need the below library dependencies since the plugin will be loaded
 # via opt or clang which already have those libs in their dependencies
 llvm_map_components_to_libnames(LLVM_LIBS core support analysis passes)
 
-if(LLVM_LIBS)
-  list(GET LLVM_LIBS 0 SINGLE_LLVM_LIB)
-  get_target_property(LLVM_LIB_TARGET_TYPE ${SINGLE_LLVM_LIB} TYPE)
-endif()
+target_link_libraries(${TEST_LIB_NAME} PUBLIC ${LLVM_LIBS})
 
-if(${LLVM_LIB_TARGET_TYPE} STREQUAL "STATIC_LIBRARY")
+if(${LLVM_SHARED_MODE} STREQUAL "STATIC")
   target_link_libraries(${LIB_NAME} PUBLIC ${LLVM_LIBS})
-  target_link_libraries(${TEST_LIB_NAME} PUBLIC ${LLVM_LIBS})
 endif()
 
 #
@@ -213,25 +202,12 @@ add_subdirectory(unittests)
 add_subdirectory(tests)
 add_subdirectory(doc)
 
-
-if(PRJ_STANDALONE_BUILD)
-  attach_compilation_db(TARGET ${LIB_NAME})
-endif()
+attach_compilation_db(TARGET ${LIB_NAME})
 
 
 # installation
 
 set(CMAKE_INSTALL_MESSAGE "LAZY")
-
-if(PRJ_STANDALONE_BUILD)
-  set(PRJ_INSTALL_INCLUDE_DIR "include")
-  set(PRJ_INSTALL_LIB_DIR "lib")
-  set(PRJ_INSTALL_SHARE_DIR "share")
-else()
-set(PRJ_INSTALL_INCLUDE_DIR "${PATH_PREFIX}/include")
-  set(PRJ_INSTALL_LIB_DIR "${PATH_PREFIX}/lib")
-set(PRJ_INSTALL_SHARE_DIR "${PATH_PREFIX}/share")
-endif()
 
 set(PRJ_CONFIG_HEADER_FILE "Config.hpp")
 set(PRJ_CMAKE_CONFIG_FILE "config.cmake")
@@ -244,8 +220,8 @@ if(Foo_FOUND)
 endif()
 
 install(TARGETS ${LIB_NAME} EXPORT ${SKELETON_EXPORT}
-  ARCHIVE DESTINATION "${PRJ_INSTALL_LIB_DIR}"
-  LIBRARY DESTINATION "${PRJ_INSTALL_LIB_DIR}")
+  ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+  LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}")
 
 file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include")
 
@@ -255,36 +231,35 @@ add_custom_target(clean_generated_include
 add_dependencies(clean_all clean_generated_include)
 
 configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/include/${PRJ_CONFIG_HEADER_FILE}.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/include/${PRJ_CONFIG_HEADER_FILE}")
+  "${CMAKE_INSTALL_INCLUDEDIR}/${PRJ_CONFIG_HEADER_FILE}.in"
+  "${CMAKE_INSTALL_INCLUDEDIR}/${PRJ_CONFIG_HEADER_FILE}")
 
 configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/share/cmake/${PRJ_CMAKE_CONFIG_FILE}.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/share/cmake/${PRJ_NAME_LOWER}-${PRJ_CMAKE_CONFIG_FILE}"
+  "${CMAKE_INSTALL_DATAROOTDIR}/cmake/${PRJ_CMAKE_CONFIG_FILE}.in"
+  "${CMAKE_INSTALL_LIBDIR}/cmake/${PRJ_NAME_LOWER}-${PRJ_CMAKE_CONFIG_FILE}"
   @ONLY)
 
 configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/share/cmake/${PRJ_CMAKE_CONFIG_EXTRA_FILE}.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/share/cmake/${PRJ_NAME}-${PRJ_CMAKE_CONFIG_EXTRA_FILE}"
+  "${CMAKE_INSTALL_DATAROOTDIR}/cmake/${PRJ_CMAKE_CONFIG_EXTRA_FILE}.in"
+  "${CMAKE_INSTALL_LIBDIR}/cmake/${PRJ_NAME}-${PRJ_CMAKE_CONFIG_EXTRA_FILE}"
   @ONLY)
 
-get_version(SHORT VERSION PRJ_VERSION_SHORT)
 write_basic_package_version_file(
-  "${CMAKE_CURRENT_BINARY_DIR}/share/cmake/${PRJ_NAME_LOWER}-config-version.cmake"
-  VERSION ${PRJ_VERSION_SHORT} COMPATIBILITY SameMajorVersion)
+  "${CMAKE_INSTALL_DATAROOTDIR}/cmake/${PRJ_NAME_LOWER}-config-version.cmake"
+  VERSION "${PRJ_VERSION_SHORT}" COMPATIBILITY SameMinorVersion)
 
-install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/" 
-  DESTINATION ${PRJ_INSTALL_INCLUDE_DIR}
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+  DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
   PATTERN "*.in" EXCLUDE)
-install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include/" 
-  DESTINATION ${PRJ_INSTALL_INCLUDE_DIR})
 
-if(PRJ_STANDALONE_BUILD)
-  install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/share/"
-    DESTINATION ${PRJ_INSTALL_SHARE_DIR})
-endif()
+install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include/"
+  DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
 
-if(PRJ_STANDALONE_BUILD)
-  install(EXPORT ${SKELETON_EXPORT} DESTINATION "${PRJ_INSTALL_SHARE_DIR}/cmake")
-endif()
+install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/share/"
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}")
+
+#
+
+install(EXPORT ${SKELETON_EXPORT}
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake")
 
