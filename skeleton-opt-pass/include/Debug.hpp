@@ -2,14 +2,15 @@
 //
 //
 
-#ifndef UTILS_HPP
-#define UTILS_HPP
+#ifndef SKELETON_DEBUG_HPP
+#define SKELETON_DEBUG_HPP
 
 #include "Config.hpp"
 
-enum class LogLevel { info, notice, warning, error, debug };
+#define DEFINE_DEBUG_LEVELS                                                    \
+  enum class LogLevel { Info, Notice, Warning, Error, Debug }
 
-#if SKELETONOPTPASS_DEBUG
+#if SKELETON_DEBUG
 
 #include "llvm/IR/Function.h"
 // using llvm::Function
@@ -27,37 +28,31 @@ enum class LogLevel { info, notice, warning, error, debug };
 #include <system_error>
 // using std::error_code
 
-// preprocessor stringification macros
-#define STRINGIFY_UTIL(x) #x
-#define STRINGIFY(x) STRINGIFY_UTIL(x)
-
-#define PRJ_CMDLINE_DESC(x) x " (version: " STRINGIFY(VERSION_STRING) ")"
+DEFINE_DEBUG_LEVELS;
 
 namespace skeleton {
-namespace utility {
+namespace debug {
 
 extern bool passDebugFlag;
 extern LogLevel passLogLevel;
 
-} // namespace utility end
-} // namespace skeleton end
+} // namespace debug
+} // namespace skeleton
 
 #define DEBUG_MSG(L, STR)                                                      \
   do {                                                                         \
-    if (skeleton::utility::passDebugFlag &&                                    \
-        L <= skeleton::utility::passLogLevel)                                  \
+    if (skeleton::debug::passDebugFlag && L <= skeleton::debug::passLogLevel)  \
       llvm::errs() << STR;                                                     \
   } while (false)
 
 #define DEBUG_CMD(L, C)                                                        \
   do {                                                                         \
-    if (skeleton::utility::passDebugFlag &&                                    \
-        L <= skeleton::utility::passLogLevel)                                  \
+    if (skeleton::debug::passDebugFlag && L <= skeleton::debug::passLogLevel)  \
       C;                                                                       \
   } while (false)
 
 namespace skeleton {
-namespace utility {
+namespace debug {
 
 static bool dumpFunction(const llvm::Function *CurFunc = nullptr) {
   if (!CurFunc)
@@ -75,8 +70,8 @@ static bool dumpFunction(const llvm::Function *CurFunc = nullptr) {
   return false;
 }
 
-} // namespace utility end
-} // namespace skeleton end
+} // namespace debug
+} // namespace skeleton
 
 #else
 
@@ -92,16 +87,18 @@ namespace llvm {
 class Function;
 } // namespace llvm end
 
+DEFINE_DEBUG_LEVELS;
+
 namespace skeleton {
-namespace utility {
+namespace debug {
 
 static constexpr bool dumpFunction(const llvm::Function *CurFunc = nullptr) {
   return true;
 }
 
-} // namespace utility
+} // namespace debug
 } // namespace skeleton
 
-#endif // SKELETONOPTPASS_DEBUG
+#endif // SKELETON_DEBUG
 
 #endif // header

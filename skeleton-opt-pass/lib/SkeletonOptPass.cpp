@@ -4,7 +4,7 @@
 
 #include "Config.hpp"
 
-#include "Utils.hpp"
+#include "Debug.hpp"
 
 #include "SkeletonOptPass.hpp"
 
@@ -81,17 +81,15 @@ static llvm::RegisterStandardPasses
 static llvm::cl::OptionCategory
     SkeletonOptPassCategory("Skeleton Pass", "Options for Skeleton pass");
 
-#if SKELETONOPTPASS_DEBUG
-bool passDebugFlag = false;
-static llvm::cl::opt<bool, true> Debug("skeleton-debug",
-                                       llvm::cl::desc("debug skeleton pass"),
-                                       llvm::cl::location(passDebugFlag),
-                                       llvm::cl::cat(SkeletonOptPassCategory));
+#if SKELETON_DEBUG
+static llvm::cl::opt<bool, true>
+    Debug("skeleton-debug", llvm::cl::desc("debug skeleton pass"),
+          llvm::cl::location(skeleton::debug::passDebugFlag),
+          llvm::cl::cat(SkeletonOptPassCategory));
 
-LogLevel passLogLevel = LogLevel::info;
 static llvm::cl::opt<LogLevel, true> DebugLevel(
     "skeleton-debug-level", llvm::cl::desc("debug level for skeleton pass"),
-    llvm::cl::location(passLogLevel),
+    llvm::cl::location(skeleton::debug::passLogLevel),
     llvm::cl::values(
         clEnumValN(LogLevel::info, "info", "informational messages"),
         clEnumValN(LogLevel::notice, "notice", "significant conditions"),
@@ -99,7 +97,7 @@ static llvm::cl::opt<LogLevel, true> DebugLevel(
         clEnumValN(LogLevel::error, "error", "error conditions"),
         clEnumValN(LogLevel::debug, "debug", "debug messages"), nullptr),
     llvm::cl::cat(SkeletonOptPassCategory));
-#endif // SKELETONOPTPASS_DEBUG
+#endif // SKELETON_DEBUG
 
 //
 
