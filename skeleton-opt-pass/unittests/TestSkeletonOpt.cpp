@@ -25,7 +25,7 @@ TEST_P(ExampleTest, Example) {
   auto td = GetParam();
 
   parseAssemblyFile(td.assemblyFile);
-  auto LI = calculateLoopInfo(*m_Module->begin());
+  auto LI = calculateLoopInfo(*module().begin());
 
   EXPECT_EQ(LI.empty(), false);
 }
