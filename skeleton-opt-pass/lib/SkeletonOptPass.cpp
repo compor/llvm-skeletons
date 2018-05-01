@@ -4,6 +4,8 @@
 
 #include "Config.hpp"
 
+#include "Util.hpp"
+
 #include "Debug.hpp"
 
 #include "SkeletonOptPass.hpp"
@@ -46,11 +48,6 @@
 
 #define DEBUG_TYPE "skeletonopt"
 
-#define STRINGIFY_UTIL(x) #x
-#define STRINGIFY(x) STRINGIFY_UTIL(x)
-
-#define PRJ_CMDLINE_DESC(x) x " (version: " STRINGIFY(VERSION_STRING) ")"
-
 // plugin registration for opt
 
 char skeleton::SkeletonOptPass::ID = 0;
@@ -91,11 +88,11 @@ static llvm::cl::opt<LogLevel, true> DebugLevel(
     "skeleton-debug-level", llvm::cl::desc("debug level for skeleton pass"),
     llvm::cl::location(skeleton::debug::passLogLevel),
     llvm::cl::values(
-        clEnumValN(LogLevel::info, "info", "informational messages"),
-        clEnumValN(LogLevel::notice, "notice", "significant conditions"),
-        clEnumValN(LogLevel::warning, "warning", "warning conditions"),
-        clEnumValN(LogLevel::error, "error", "error conditions"),
-        clEnumValN(LogLevel::debug, "debug", "debug messages"), nullptr),
+        clEnumValN(LogLevel::Info, "Info", "informational messages"),
+        clEnumValN(LogLevel::Notice, "Notice", "significant conditions"),
+        clEnumValN(LogLevel::Warning, "Warning", "warning conditions"),
+        clEnumValN(LogLevel::Error, "Error", "error conditions"),
+        clEnumValN(LogLevel::Debug, "Debug", "debug messages"), nullptr),
     llvm::cl::cat(SkeletonOptPassCategory));
 #endif // SKELETON_DEBUG
 
@@ -119,4 +116,4 @@ bool SkeletonOptPass::runOnFunction(llvm::Function &CurFunc) {
   return false;
 }
 
-} // namespace skeleton end
+} // namespace skeleton

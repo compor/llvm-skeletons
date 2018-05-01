@@ -10,7 +10,7 @@
 
 namespace llvm {
 class Function;
-} // namespace llvm end
+} // namespace llvm
 
 namespace skeleton {
 
@@ -23,6 +23,6 @@ public:
   bool runOnFunction(llvm::Function &CurFunc) override;
 };
 
-} // namespace skeleton end
+} // namespace skeleton
 
 #endif // header

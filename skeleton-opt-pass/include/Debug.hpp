@@ -85,7 +85,7 @@ static bool dumpFunction(const llvm::Function *CurFunc = nullptr) {
 
 namespace llvm {
 class Function;
-} // namespace llvm end
+} // namespace llvm
 
 DEFINE_DEBUG_LEVELS;
 

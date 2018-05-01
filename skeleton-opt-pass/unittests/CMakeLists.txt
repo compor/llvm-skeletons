@@ -30,6 +30,7 @@ set(PRJ_TEST_NAME Test${PRJ_NAME})
 set(TEST_SOURCES TestSkeletonOpt.cpp)
 
 add_executable(${PRJ_TEST_NAME} ${TEST_SOURCES})
+add_sanitizers(${PRJ_TEST_NAME})
 
 target_include_directories(${PRJ_TEST_NAME} PUBLIC include)
 target_include_directories(${PRJ_TEST_NAME} PUBLIC ${GTEST_INCLUDE_DIRS})
@@ -59,4 +60,34 @@ file(MAKE_DIRECTORY ${TEST_DATA_DIR})
 add_custom_command(TARGET unittests PRE_BUILD COMMAND 
   ${CMAKE_COMMAND} -E copy_directory 
   ${CMAKE_CURRENT_SOURCE_DIR}/data/ ${TEST_DATA_DIR})
+
+# setup scripts
+
+# setup valgrind script
+
+set(VALGRIND_SCRIPT "run_unittests_with_valgrind.sh")
+configure_file(
+  "${CMAKE_SOURCE_DIR}/utils/scripts/${VALGRIND_SCRIPT}.in"
+  "${CMAKE_BINARY_DIR}/${VALGRIND_SCRIPT}"
+  @ONLY)
+
+# setup sanitize scripts
+
+set(SANITIZE_SCRIPTS_DIR "${CMAKE_SOURCE_DIR}/utils/scripts/sanitizers/")
+
+if(SANITIZE_ADDRESS)
+  set(ASAN_SCRIPT "run_unittests_with_asan.sh")
+  configure_file(
+    "${SANITIZE_SCRIPTS_DIR}/${ASAN_SCRIPT}.in"
+    "${CMAKE_BINARY_DIR}/${ASAN_SCRIPT}"
+    @ONLY)
+endif()
+
+if(SANITIZE_MEMORY)
+  set(ASAN_SCRIPT "run_unittests_with_msan.sh")
+  configure_file(
+    "${SANITIZE_SCRIPTS_DIR}/${ASAN_SCRIPT}.in"
+    "${CMAKE_BINARY_DIR}/${ASAN_SCRIPT}"
+    @ONLY)
+endif()
 

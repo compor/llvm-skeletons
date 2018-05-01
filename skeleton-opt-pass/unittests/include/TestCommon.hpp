@@ -17,7 +17,7 @@
 // using llvm::LoopInfo
 
 #include <iostream>
-// using std::ostream
+// using std::cerr
 
 #include <string>
 // using std::string

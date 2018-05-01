@@ -19,6 +19,7 @@ export BUILD_TYPE=Debug
 export GTEST_ROOT=/usr/local/gtest-libstdcxx
 
 export CXX_FLAGS=
+export CXX_FLAGS="${CXX_FLAGS} -O1"
 
 export LINKER_FLAGS=
 

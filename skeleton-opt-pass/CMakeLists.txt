@@ -1,12 +1,11 @@
 # cmake file
 
-# build tool configuration
-
 cmake_minimum_required(VERSION 3.2.0)
 
 list(APPEND CMAKE_MODULE_PATH
   "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake-utils/general"
-  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake-utils/modules")
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake-utils/modules"
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/sanitizers-cmake/cmake")
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
@@ -84,6 +83,13 @@ endif()
 
 message(STATUS "EH support: ${LLVM_ENABLE_EH}")
 
+if(SANITIZE_ADDRESS)
+  message(STATUS "ASAN enabled")
+endif()
+
+if(SANITIZE_MEMORY)
+  message(STATUS "MSAN enabled")
+endif()
 
 # when we are building the project as standalone, we'd like to leave the install
 # RPATH empty so that potentially we can dynamically link against other
@@ -113,6 +119,7 @@ set(CMAKE_MODULE_LINKER_FLAGS
 # dependencies
 
 find_package(Foo CONFIG)
+find_package(Sanitizers)
 
 if(Foo_FOUND)
   set(${PRJ_NAME_UPPER}_USES_FOO 1)
@@ -167,6 +174,7 @@ endforeach()
 target_include_directories(${OBJ_LIB_NAME} PUBLIC
   $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${PATH_PREFIX}/include>)
 
+add_sanitizers(${OBJ_LIB_NAME})
 
 # according to http://llvm.org/docs/CMake.html
 # we do not need the below library dependencies since the plugin will be loaded
