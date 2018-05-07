@@ -152,6 +152,12 @@ foreach(PRJ_LIB ${PRJ_LIB_NAMES})
     CXX_STANDARD_REQUIRED ON
     CXX_EXTENSIONS OFF)
 
+  target_compile_options(${PRJ_LIB} PRIVATE "-pedantic")
+  target_compile_options(${PRJ_LIB} PRIVATE "-Wall")
+  target_compile_options(${PRJ_LIB} PRIVATE "-Wextra")
+  target_compile_options(${PRJ_LIB} PRIVATE "-Wno-unused-parameter")
+  target_compile_options(${PRJ_LIB} PRIVATE "-Wno-unused-function")
+
   target_compile_definitions(${PRJ_LIB} PUBLIC ${LLVM_DEFINITIONS})
   target_compile_definitions(${PRJ_LIB}
     PRIVATE VERSION_STRING=${PRJ_VERSION})
@@ -173,6 +179,10 @@ endforeach()
 # should be able to use target_link_libraries() against an INTERFACE library
 target_include_directories(${OBJ_LIB_NAME} PUBLIC
   $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${PATH_PREFIX}/include>)
+
+if(SANITIZE_MEMORY)
+  target_compile_options(${TEST_LIB_NAME} PUBLIC "-fPIC")
+endif()
 
 add_sanitizers(${OBJ_LIB_NAME})
 
